@@ -10,6 +10,7 @@ import store from './store';
 import '../public/icon/iconfont.css';
 
 Vue.prototype.$axios = axios;
+// Vue.prototype.$httpUrl = 'http://110.40.171.227:5000';
 Vue.prototype.$httpUrl = 'https://localhost:44329';
 Vue.config.productionTip = false;
 
@@ -47,14 +48,14 @@ new Vue({
 
         // 如果有子菜单，递归处理
         if (menu.Children && menu.Children.length > 0) {
-            menu.Children.forEach(child => {
-                topRoute.children.push({
-                    path: child.Url,
-                    name: child.Name,
-                    component:()=>import(`./components/views${child.Url}.vue`) // 根据Url解析组件
-                });
-            });
-        }
+          menu.Children.forEach(child => {
+              topRoute.children.push({
+                  path: child.Url,
+                  name: child.Name,
+                  component:()=>import(`./components${child.Url}${child.Url}.vue`) // 根据Url解析组件
+              });
+          });
+      }
         // 将顶层路由添加到路由配置中
         router.options.routes.push(topRoute);
       });
@@ -65,3 +66,5 @@ new Vue({
   },
   render: h => h(App),
 }).$mount('#app');
+
+

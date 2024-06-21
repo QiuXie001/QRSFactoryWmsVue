@@ -28,7 +28,7 @@ function addNewRoute(menuList) {
                 topRoute.children.push({
                     path: child.Url,
                     name: child.Name,
-                    component:()=>import(`../components/views${child.Url}.vue`) // 根据Url解析组件
+                    component:()=>import(`../components${child.Url}${child.Url}.vue`) // 根据Url解析组件
                 });
             });
         }
