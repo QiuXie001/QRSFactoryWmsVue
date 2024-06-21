@@ -10,9 +10,7 @@ import dto from './modules/dto'
 vue.use(Vuex)
 
 function addNewRoute(menuList) {
-    console.log(menuList)
-    let routes = router.options.routes
-    console.log(routes)
+    let routes = router.options.routes;
     menuList.forEach(menu => {
         // 创建顶层路由
         let topRoute = {

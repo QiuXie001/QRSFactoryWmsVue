@@ -58,7 +58,6 @@
                         loginFormData.append("password",this.loginForm.password);
                         //去后台验证用户名密码
                         this.$axios.post(this.$httpUrl+'/Authentication/CheckLogin',loginFormData).then(loginres=>loginres.data).then(loginres=>{
-                            console.log(loginres)
                             if(loginres.Item1.Item1){
                                 //存储
                                 sessionStorage.setItem("CurUser",JSON.stringify(loginres.Item1.Item3))
@@ -70,7 +69,6 @@
                                 menuFormData.append("token",loginres.Item2);
                                 this.$axios.post(this.$httpUrl+'/Permission/GetPermissions',menuFormData).then(menures=>menures.data).then(menures=>{
                                     
-                                console.log(menures)
                                 this.$store.commit("setMenu",menures)
                                 });
                                 //跳转到主页
