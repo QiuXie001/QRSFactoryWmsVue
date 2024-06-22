@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "32243098",
+      "name": "菜单管理",
+      "font_class": "caidanguanli",
+      "unicode": "e694",
+      "unicode_decimal": 59028
+    },
+    {
       "icon_id": "1680721",
       "name": "部门管理",
       "font_class": "bumenguanli",

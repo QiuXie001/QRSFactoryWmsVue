@@ -1,9 +1,9 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogRole" :rules="rules" ref="roleForm">
+    <el-form :model="dialogMaterial" :rules="rules" ref="MaterialForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="role[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="role[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="Material[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Material[field.prop]">
         </el-input>
       </el-form-item>
       <el-form-item label="菜单权限" prop="dialogMenuIds">
@@ -13,7 +13,7 @@
               @change="toggleChildren(menu), handleParentChange(menu)">
               {{ menu.MenuName }}
               <div class="children" v-if="menu.expanded && menu.Children && menu.Children.length > 0">
-                <el-checkbox v-for="child in menu.Children" :label="child.MenuId" :key="child.MenuId" @change ="handleChildChange">
+                <el-checkbox v-for="child in menu.Children" :label="child.MenuId" :key="child.MenuId">
                   {{ child.MenuName }}
                 </el-checkbox>
               </div>
@@ -31,7 +31,7 @@
 
 <script>
 export default {
-  name: 'AddEditRoleDialog',
+  name: 'AddEditMaterialDialog',
   props: {
     visible: {
       type: Boolean,
@@ -41,7 +41,7 @@ export default {
       type: String,
       default: ''
     },
-    role: {
+    Material: {
       type: Object,
       default: () => ({})
     },
@@ -59,11 +59,11 @@ export default {
   data() {
     return {
       rules: {
-        RoleName: [
-          { required: true, message: '请输入角色名称', trigger: 'blur' }
+        MaterialName: [
+          { required: true, message: '请输入物料名称', trigger: 'blur' }
         ],
-        RoleType: [
-          { required: true, message: '请输入角色类型', trigger: 'blur' }
+        MaterialType: [
+          { required: true, message: '请输入物料类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -71,17 +71,17 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogRole: Object,
+      dialogMaterial: Object,
       dialogMenuList: this.menuList,
       formFields: [
         {
-          prop: 'RoleName',
-          label: '角色名称',
+          prop: 'MaterialName',
+          label: '物料名称',
           type: 'input',
         },
         {
-          prop: 'RoleType',
-          label: '角色类型',
+          prop: 'MaterialType',
+          label: '物料类型',
           type: 'input',
         },
         {
@@ -101,8 +101,8 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    role(newValue) {
-      this.dialogRole = newValue;
+    Material(newValue) {
+      this.dialogMaterial = newValue;
     },
     menuList(newValue) {
       this.dialogMenuList = newValue;
@@ -119,7 +119,7 @@ export default {
     },
   },
   created() {
-    this.dialogRole = this.role;
+    this.dialogMaterial = this.Material;
     this.dialogMenuList = this.menuList;
     this.dialogMenuIds = this.menuIds;
 
@@ -131,10 +131,9 @@ export default {
       menu.expanded = !menu.expanded;
     },
     handleParentChange(menu) {
-      console.log('点击父菜单');
-      if (this.dialogMenuIds.includes(menu.MenuId)) {
+      if (this.menuIds.includes(menu.MenuId)) {
         menu.Children.forEach(child => {
-          if (!this.dialogMenuIds.includes(child.MenuId)) {
+          if (!this.menuIds.includes(child.MenuId)) {
             this.dialogMenuIds.push(child.MenuId);
           }
         });
@@ -142,38 +141,21 @@ export default {
         // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
         menu.expanded = false;
         menu.Children.forEach(child => {
-          const index = this.dialogMenuIds.indexOf(child.MenuId);
+          const index = this.menuIds.indexOf(child.MenuId);
           if (index !== -1) {
             this.dialogMenuIds.splice(index, 1);
           }
         });
       }
-      this.$emit('update:menuIds', this.dialogMenuIds);
     },
-    handleChildChange(checked, menuId) {
-      console.log('点击子菜单');
-      if (checked) {
-        if (!this.dialogMenuIds.includes(menuId)) {
-          this.dialogMenuIds.push(menuId);
-        }
-      } else {
-        const index = this.dialogMenuIds.indexOf(menuId);
-        if (index !== -1) {
-          this.dialogMenuIds.splice(index, 1);
-        }
-      }
-      // 更新menuIds prop
-      this.$emit('update:menuIds', this.dialogMenuIds);
-    },
-
     confirmAction() {
-      // 确认添加或编辑角色的逻辑
-      this.$refs.roleForm.validate(valid => {
+      // 确认添加或编辑物料的逻辑
+      this.$refs.MaterialForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogRole, this.dialogMenuIds);
+          this.$emit('confirmAction', this.dialogMaterial, this.menuIds);
           console.log('数据发出');
-          console.log(this.dialogRole);
-          console.log(this.dialogMenuIds);
+          console.log(this.dialogMaterial);
+          console.log(this.menuIds);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -183,7 +165,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogRole = null;
+      this.dialogMaterial = null;
       this.dialogMenuIds = [];
       this.menuList.forEach(menu => {
         menu.expanded = false;

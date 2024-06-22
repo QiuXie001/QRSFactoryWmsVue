@@ -4,8 +4,8 @@
       <el-col :span="12">
         <el-form :model="searchForm" ref="searchForm">
           <el-col :span="8">
-            <el-form-item prop="menuName">
-              <el-input v-model="searchForm.menuName" placeholder="菜单名称或类型"></el-input>
+            <el-form-item prop="productionOrderName">
+              <el-input v-model="searchForm.productionOrderName" placeholder="请输入部门名称"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="6" :offset="2">
@@ -21,7 +21,7 @@
         <el-button type="primary" @click="handleSearch()">搜索</el-button>
       </el-col>
       <el-col :span="2" :offset="4">
-        <el-button type="primary" @click="handleAdd()">新增</el-button>
+        <el-button type="primary" @click="handleAdd()">新增部门</el-button>
       </el-col>
     </el-row>
   </div>
@@ -30,27 +30,26 @@
 <script>
 export default {
   name: 'Search',
-  props: {
-    currentPage: Number,
-  },
   data() {
     return {
       searchForm: {
-        menuName: '',
+        productionOrderName: '',
         dateRange: [] // 初始化为空数组
       }
     }
   },
   methods: {
     handleSearch() {
-      this.$emit('update-page', 1);
       this.$emit('search', this.searchForm);
     },
     handleAdd() {
-      this.$emit('addMenu');
+      // 新增部门逻辑
+      this.$emit('addProductionOrder');
     }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

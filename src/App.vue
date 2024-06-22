@@ -9,6 +9,9 @@
 
 export default {
   name: 'App',
+  // mounted() {
+  //   debugger;
+  // },
   components: {
 
   }

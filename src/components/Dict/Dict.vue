@@ -1,11 +1,11 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addMenu="showAddMenuDialog" :currentPage="currentPage" @update-page="updatePage" />
-    <List :rows="menuList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editMenu="showEditMenuDialog"
-      @deleteMenu="handleDeleteMenu" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :menu="selectedMenu"
-      :parentMenuList="parentMenuList" :formFields="formFields" @confirmAction="confirmAddEditMenu"
-      @cancel="cancelAddEditMenu" />
+    <Search @search="handleSearch" @addDict="showAddDictDialog" :currentPage="currentPage" @update-page="updatePage" />
+    <List :rows="dictList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editDict="showEditDictDialog"
+      @deleteDict="handleDeleteDict" @pageChange="handlePageChange" />
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :dict="selectedDict"
+      :parentDictList="parentDictList" :formFields="formFields" @confirmAction="confirmAddEditDict"
+      @cancel="cancelAddEditDict" />
   </div>
 </template>
 
@@ -15,7 +15,7 @@ import List from './List';
 import AddEditDialog from './AddEditDialog';
 
 export default {
-  name: 'Menu',
+  name: 'Dict',
   components: {
     Search,
     List,
@@ -27,42 +27,20 @@ export default {
   },
   data() {
     return {
-      menuList: [],
+      dictList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
-      selectedMenu: {},
-      parentMenuList: [],
+      selectedDict: {},
+      parentDictList: [],
       formFields: [
         {
-          prop: 'MenuName',
-          label: '菜单名称',
+          prop: 'DictName',
+          label: '字典名称',
           type: 'input',
-        },
-        {
-          prop: 'MenuUrl',
-          label: '菜单路径',
-          type: 'input',
-        }, {
-          prop: 'MenuIcon',
-          label: '图标',
-          type: 'input',
-        },
-        {
-          prop: 'MenuParent',
-          label: '父菜单',
-          type: 'input',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'input',
-        }, {
-          prop: 'MenuType',
-          label: '菜单类型',
-          type: 'input',
-        }, {
+        },{
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -74,7 +52,7 @@ export default {
         limit: 8, // 每页显示的行数
         sort: 'CreateDate', // 排序字段
         order: 'desc', // 排序方式
-        search: null, // 搜索关键词
+        search: '', // 搜索关键词
         _: Date.now(), // 时间戳或随机数
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
@@ -90,11 +68,11 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Menu/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Dict/GetPageList', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.menuList = data.rows;
+            this.dictList = data.rows;
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -110,37 +88,7 @@ export default {
             message: error
           });
         });
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', menuFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.parentMenuList = [];
-            const menus = data.rows;
-            menus.forEach(item => {
-              // 创建一个包含MenuId和MenuName的对象
-              let menuItem = {
-                MenuId: item.MenuId,
-                MenuName: item.MenuName
-              };
-              // 将这个对象添加到结果列表中
-              this.parentMenuList.push(menuItem);
-            });
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -168,33 +116,33 @@ export default {
         this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
 
       }
-      this.parmas.search = searchData.menuName;
-      this.init();
+      this.parmas.search = searchData.dictName;
+      this.init(); // 重新获取数据
     },
-    showAddMenuDialog() {
-      // 显示新增菜单对话框的逻辑
-      this.dialogMenu = { 
-        MenuParent : 1,
+    showAddDictDialog() {
+      // 显示新增字典对话框的逻辑
+      this.dialogDict = { 
+        DictParent : 1,
        };
-      this.dialogTitle = '新增菜单';
+      this.dialogTitle = '新增字典';
       this.addEditDialogVisible = true;
     },
-    confirmAddEditMenu(menuData) {
-      if (this.dialogTitle === '新增菜单') {
-        const menuDto = {
-          MenuType: menuData.MenuType,
-          MenuName: menuData.MenuName,
-          Remark: menuData.Remark,
-          MenuParent: menuData.MenuParent,
-          MenuUrl: menuData.MenuUrl,
-          MenuIcon: menuData.MenuIcon,
-          MenuOrder: menuData.MenuOrder,
+    confirmAddEditDict(dictData) {
+      if (this.dialogTitle === '新增字典') {
+        const dictDto = {
+          DictType: dictData.DictType,
+          DictName: dictData.DictName,
+          Remark: dictData.Remark,
+          DictParent: dictData.DictParent,
+          DictUrl: dictData.DictUrl,
+          DictIcon: dictData.DictIcon,
+          DictOrder: dictData.DictOrder,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("menu", JSON.stringify(menuDto));
-        this.$axios.post(this.$httpUrl + '/Menu/InsertMenu', UserFormData)
+        UserFormData.append("dict", JSON.stringify(dictDto));
+        this.$axios.post(this.$httpUrl + '/Dict/InsertDict', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -218,7 +166,7 @@ export default {
             });
           });
       }
-      else if (this.dialogTitle === '编辑菜单') {
+      else if (this.dialogTitle === '编辑字典') {
         //
       }
 
@@ -226,25 +174,25 @@ export default {
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
-    showEditMenuDialog(menu) {
-      // 显示编辑菜单对话框的逻辑
-      this.dialogTitle = '编辑菜单';
-      this.selectedMenu = menu;
+    showEditDictDialog(dict) {
+      // 显示编辑字典对话框的逻辑
+      this.dialogTitle = '编辑字典';
+      this.selectedDict = dict;
       this.addEditDialogVisible = true;
     },
-    cancelAddEditMenu() {
-      // 取消添加或编辑菜单的逻辑
+    cancelAddEditDict() {
+      // 取消添加或编辑字典的逻辑
       this.dialogVisible = false;
     },
-    handleDeleteMenu(menuData) {
-      const menuDto = {
-        MenuId: menuData.MenuId
+    handleDeleteDict(dictData) {
+      const dictDto = {
+        DictId: dictData.DictId
       };
       const UserFormData = new FormData();
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("menu", JSON.stringify(menuDto));
-      this.$axios.post(this.$httpUrl + '/Menu/DeleteMenu', UserFormData)
+      UserFormData.append("dict", JSON.stringify(dictDto));
+      this.$axios.post(this.$httpUrl + '/Dict/DeleteDict', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {

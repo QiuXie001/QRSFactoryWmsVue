@@ -1,11 +1,11 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addMenu="showAddMenuDialog" :currentPage="currentPage" @update-page="updatePage" />
-    <List :rows="menuList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editMenu="showEditMenuDialog"
-      @deleteMenu="handleDeleteMenu" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :menu="selectedMenu"
-      :parentMenuList="parentMenuList" :formFields="formFields" @confirmAction="confirmAddEditMenu"
-      @cancel="cancelAddEditMenu" />
+    <Search @search="handleSearch" @addWarehouse="showAddWarehouseDialog" :currentPage="currentPage" @update-page="updatePage" />
+    <List :rows="warehouseList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editWarehouse="showEditWarehouseDialog"
+      @deleteWarehouse="handleDeleteWarehouse" @pageChange="handlePageChange" />
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :warehouse="selectedWarehouse"
+      :parentWarehouseList="parentWarehouseList" :formFields="formFields" @confirmAction="confirmAddEditWarehouse"
+      @cancel="cancelAddEditWarehouse" />
   </div>
 </template>
 
@@ -15,7 +15,7 @@ import List from './List';
 import AddEditDialog from './AddEditDialog';
 
 export default {
-  name: 'Menu',
+  name: 'Warehouse',
   components: {
     Search,
     List,
@@ -27,42 +27,20 @@ export default {
   },
   data() {
     return {
-      menuList: [],
+      warehouseList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
-      selectedMenu: {},
-      parentMenuList: [],
+      selectedWarehouse: {},
+      parentWarehouseList: [],
       formFields: [
         {
-          prop: 'MenuName',
-          label: '菜单名称',
+          prop: 'WarehouseName',
+          label: '部门名称',
           type: 'input',
-        },
-        {
-          prop: 'MenuUrl',
-          label: '菜单路径',
-          type: 'input',
-        }, {
-          prop: 'MenuIcon',
-          label: '图标',
-          type: 'input',
-        },
-        {
-          prop: 'MenuParent',
-          label: '父菜单',
-          type: 'input',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'input',
-        }, {
-          prop: 'MenuType',
-          label: '菜单类型',
-          type: 'input',
-        }, {
+        },{
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -74,7 +52,7 @@ export default {
         limit: 8, // 每页显示的行数
         sort: 'CreateDate', // 排序字段
         order: 'desc', // 排序方式
-        search: null, // 搜索关键词
+        search: '', // 搜索关键词
         _: Date.now(), // 时间戳或随机数
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
@@ -90,11 +68,11 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Menu/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Warehouse/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.menuList = data.rows;
+            this.warehouseList = data.rows;
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -110,37 +88,7 @@ export default {
             message: error
           });
         });
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', menuFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.parentMenuList = [];
-            const menus = data.rows;
-            menus.forEach(item => {
-              // 创建一个包含MenuId和MenuName的对象
-              let menuItem = {
-                MenuId: item.MenuId,
-                MenuName: item.MenuName
-              };
-              // 将这个对象添加到结果列表中
-              this.parentMenuList.push(menuItem);
-            });
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -168,33 +116,33 @@ export default {
         this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
 
       }
-      this.parmas.search = searchData.menuName;
-      this.init();
+      this.parmas.search = searchData.warehouseName;
+      this.init(); // 重新获取数据
     },
-    showAddMenuDialog() {
-      // 显示新增菜单对话框的逻辑
-      this.dialogMenu = { 
-        MenuParent : 1,
+    showAddWarehouseDialog() {
+      // 显示新增部门对话框的逻辑
+      this.dialogWarehouse = { 
+        WarehouseParent : 1,
        };
-      this.dialogTitle = '新增菜单';
+      this.dialogTitle = '新增部门';
       this.addEditDialogVisible = true;
     },
-    confirmAddEditMenu(menuData) {
-      if (this.dialogTitle === '新增菜单') {
-        const menuDto = {
-          MenuType: menuData.MenuType,
-          MenuName: menuData.MenuName,
-          Remark: menuData.Remark,
-          MenuParent: menuData.MenuParent,
-          MenuUrl: menuData.MenuUrl,
-          MenuIcon: menuData.MenuIcon,
-          MenuOrder: menuData.MenuOrder,
+    confirmAddEditWarehouse(warehouseData) {
+      if (this.dialogTitle === '新增部门') {
+        const warehouseDto = {
+          WarehouseType: warehouseData.WarehouseType,
+          WarehouseName: warehouseData.WarehouseName,
+          Remark: warehouseData.Remark,
+          WarehouseParent: warehouseData.WarehouseParent,
+          WarehouseUrl: warehouseData.WarehouseUrl,
+          WarehouseIcon: warehouseData.WarehouseIcon,
+          WarehouseOrder: warehouseData.WarehouseOrder,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("menu", JSON.stringify(menuDto));
-        this.$axios.post(this.$httpUrl + '/Menu/InsertMenu', UserFormData)
+        UserFormData.append("warehouse", JSON.stringify(warehouseDto));
+        this.$axios.post(this.$httpUrl + '/Warehouse/InsertWarehouse', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -218,7 +166,7 @@ export default {
             });
           });
       }
-      else if (this.dialogTitle === '编辑菜单') {
+      else if (this.dialogTitle === '编辑部门') {
         //
       }
 
@@ -226,25 +174,25 @@ export default {
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
-    showEditMenuDialog(menu) {
-      // 显示编辑菜单对话框的逻辑
-      this.dialogTitle = '编辑菜单';
-      this.selectedMenu = menu;
+    showEditWarehouseDialog(warehouse) {
+      // 显示编辑部门对话框的逻辑
+      this.dialogTitle = '编辑部门';
+      this.selectedWarehouse = warehouse;
       this.addEditDialogVisible = true;
     },
-    cancelAddEditMenu() {
-      // 取消添加或编辑菜单的逻辑
+    cancelAddEditWarehouse() {
+      // 取消添加或编辑部门的逻辑
       this.dialogVisible = false;
     },
-    handleDeleteMenu(menuData) {
-      const menuDto = {
-        MenuId: menuData.MenuId
+    handleDeleteWarehouse(warehouseData) {
+      const warehouseDto = {
+        WarehouseId: warehouseData.WarehouseId
       };
       const UserFormData = new FormData();
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("menu", JSON.stringify(menuDto));
-      this.$axios.post(this.$httpUrl + '/Menu/DeleteMenu', UserFormData)
+      UserFormData.append("warehouse", JSON.stringify(warehouseDto));
+      this.$axios.post(this.$httpUrl + '/Warehouse/DeleteWarehouse', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {
