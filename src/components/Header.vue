@@ -8,7 +8,7 @@
         </div>
         <div class="custom-dropdown">
             <img 
-            :src="require('@../../../public/upload/head/' + user.HeadImg)" 
+            :src=" user.HeadImg" 
             @click="isDropdownOpen = !isDropdownOpen"
                 />
             <transition name="fade">
@@ -28,7 +28,11 @@ export default {
         return {
             isDropdownOpen: false,
             activeIndex: '1',
-            user: {}
+        }
+    },
+    computed: {
+        user() {
+            return this.$store.state.user;
         }
     },
     props: {
@@ -36,7 +40,6 @@ export default {
     },
     methods: {
         init() {
-            this.user = this.$store.state.user;
         },
         toUser() {
             this.$router.push("/PersonalInfo")

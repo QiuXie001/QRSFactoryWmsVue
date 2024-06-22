@@ -11,11 +11,11 @@
 
 <script>
 import Search from './Search';
-import RoleList from './RoleList';
+import RoleList from './List';
 import AddEditRoleDialog from './AddEditRoleDialog';
 
 export default {
-  name: 'RoleManagement',
+  name: 'Role',
   components: {
     Search,
     RoleList,
@@ -125,24 +125,26 @@ export default {
     handleSearch(searchData) {
       console.log(searchData);
       if (!searchData.dateRange || searchData.dateRange.length !== 2) {
-        console.error('日期范围格式不正确');
-        return;
+        //
       }
-      const startDate = new Date(searchData.dateRange[0]);
-      const endDate = new Date(searchData.dateRange[1]);
+      else {
+        const startDate = new Date(searchData.dateRange[0]);
+        const endDate = new Date(searchData.dateRange[1]);
 
-      if (isNaN(startDate) || isNaN(endDate)) {
-        console.error('提供的日期格式不正确');
-        return;
-      }
-      // 验证日期顺序
-      if (startDate > endDate) {
-        console.error('开始日期不能晚于结束日期');
-        return;
+        if (isNaN(startDate) || isNaN(endDate)) {
+          console.error('提供的日期格式不正确');
+          return;
+        }
+        // 验证日期顺序
+        if (startDate > endDate) {
+          console.error('开始日期不能晚于结束日期');
+          return;
+        }
+        this.parmas.datemin = startDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
+        this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
+
       }
       this.parmas.search = searchData.roleName;
-      this.parmas.datemin = startDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
-      this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
       this.init();
     },
     showAddRoleDialog() {

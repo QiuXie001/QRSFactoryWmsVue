@@ -26,7 +26,7 @@
 
 <script>
 export default {
-    name: 'RoleList',
+    name: 'List',
     props: {
         rows: Array,
         currentPage: Number,

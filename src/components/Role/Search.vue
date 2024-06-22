@@ -34,7 +34,7 @@ export default {
     return {
       searchForm: {
         roleName: '',
-        dateRange: null
+        dateRange: [] // 初始化为空数组
       }
     }
   },
