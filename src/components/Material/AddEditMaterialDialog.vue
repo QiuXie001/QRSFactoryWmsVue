@@ -5,22 +5,12 @@
         <el-input v-if="field.type === 'input'" v-model="Material[field.prop]"></el-input>
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Material[field.prop]">
         </el-input>
+        <el-select v-if="field.type === 'select'" v-model="dialogMaterial[field.prop]" placeholder="请选择">
+          
+       
+        </el-select>
       </el-form-item>
-      <el-form-item label="菜单权限" prop="dialogMenuIds">
-        <div class="rounded-checkbox-group">
-          <el-checkbox-group v-model="dialogMenuIds">
-            <el-checkbox v-for="menu in menuList" :label="menu.MenuId" :key="menu.MenuId"
-              @change="toggleChildren(menu), handleParentChange(menu)">
-              {{ menu.MenuName }}
-              <div class="children" v-if="menu.expanded && menu.Children && menu.Children.length > 0">
-                <el-checkbox v-for="child in menu.Children" :label="child.MenuId" :key="child.MenuId">
-                  {{ child.MenuName }}
-                </el-checkbox>
-              </div>
-            </el-checkbox>
-          </el-checkbox-group>
-        </div>
-      </el-form-item>
+      
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -45,14 +35,7 @@ export default {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
-    },
-    menuIds: {
-      type: Array,
-      default: () => []
-    },
+  
   },
   computed: {
   },
@@ -72,8 +55,12 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogMaterial: Object,
-      dialogMenuList: this.menuList,
       formFields: [
+      {
+          prop: 'MaterialNo',
+          label: '物料编号',
+          type: 'input',
+        },
         {
           prop: 'MaterialName',
           label: '物料名称',
@@ -82,16 +69,36 @@ export default {
         {
           prop: 'MaterialType',
           label: '物料类型',
+          type: 'select',
+        }, {
+          prop: 'UnitType',
+          label: '单位',
+          type: 'select',
+        }, {
+          prop: 'WarehouseId',
+          label: '所属仓库',
+          type: 'select',
+        }, {
+          prop: 'ReservoirAreaId',
+          label: '所属库区',
+          type: 'select',
+        }, {
+          prop: 'StoragerackId',
+          label: '所属货架',
+          type: 'select',
+        },{
+          prop: 'ExpiryDate',
+          label: '有效期',
           type: 'input',
         },
         {
           prop: 'Remark',
           label: '备注',
-          type: 'textarea',
+          type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
+     
     }
   },
   watch: {
@@ -104,32 +111,18 @@ export default {
     Material(newValue) {
       this.dialogMaterial = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
-    },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
-    },
+   
+   
   },
   created() {
     this.dialogMaterial = this.Material;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
+    
 
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
+   
     handleParentChange(menu) {
       if (this.menuIds.includes(menu.MenuId)) {
         menu.Children.forEach(child => {

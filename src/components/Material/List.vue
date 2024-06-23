@@ -7,8 +7,15 @@
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="MaterialType" label="物料类型"></el-table-column>
+            <el-table-column prop="MaterialNo" label="客户编号"></el-table-column>
             <el-table-column prop="MaterialName" label="物料名称"></el-table-column>
+            <el-table-column prop="MaterialType" label="物料分类"></el-table-column>
+            <el-table-column prop="Unit" label="单位"></el-table-column>
+            <el-table-column prop="ExpiryDate" label="有效期"></el-table-column>
+             <el-table-column prop="StoragerackId" label="所属货架"></el-table-column>
+             <el-table-column prop="ReservoirAreaId" label="所属库区"></el-table-column> 
+                <el-table-column prop="WarehouseId" label="所属仓库"></el-table-column>
+                <el-table-column prop="Remark" label="备注"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="IsDel" label="是否禁用">

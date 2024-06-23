@@ -1,14 +1,22 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogUser" :rules="rules" ref="menuForm">
+    <el-form :model="dialogUser" :rules="rules" ref="userForm">
       <el-row v-for="field in formFields" :key="field.prop" type="flex" align="middle">
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogUser[field.prop]" :style="getInputStyle(field)">
-              <template v-if="field.prefix && title !== '编辑用户'" slot="prefix">{{ field.prefix }}</template>
+            <el-input v-if="field.type === 'input'" v-model="dialogUser[field.prop]" >
             </el-input>
-
+            <el-select v-if="field.type === 'select'&&field.label==='角色'" v-model="dialogUser[field.prop]" placeholder="请选择">
+              <el-option v-for=" (key,value) in roleList" :key="value" :label="key"
+              :value="value"></el-option>
+             
+            </el-select>
+            <el-select v-if="field.type === 'select'&&field.label==='部门'" v-model="dialogUser[field.prop]" placeholder="请选择">
+              <el-option v-for="(key,value) in deptList" :key="value" :label="key"
+              :value="value"></el-option>
+             
+            </el-select>
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
               v-model="dialogUser[field.prop]"></el-input>
           </el-form-item>
@@ -35,14 +43,19 @@ export default {
       type: String,
       default: ''
     },
-    menu: {
+    user: {
       type: Object,
       default: () => ({})
     },
-    parentUserList: {
-      type: Array,
-      default: () => []
+    roleList: {
+      type: Object,
+      default: () => ({})
     },
+    deptList:{
+      type: Object,
+      default: () => ({})
+    }
+
   },
   computed: {
   },
@@ -62,36 +75,44 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogUser: Object,
-      dialogParentUserList: this.parentUserList,
+      dialogRoleList: this.roleList,
+      dialogDeptList: this.deptList,
+
       formFields: [
         {
           prop: 'UserName',
           label: '用户名称',
           type: 'input',
-        }, {
-          prop: 'UserType',
-          label: '用户类型',
+        },
+        {
+          prop: 'UserNickname',
+          label: '昵称',
           type: 'input',
-        }, {
-          prop: 'UserUrl',
-          label: '用户路径',
+        },{
+          prop: 'Pwd',
+          label: '初始密码',
           type: 'input',
-          prefix: '/',
-        }, {
-          prop: 'UserIcon',
-          label: '图标',
+        },
+        {
+          prop: 'TwicePwd',
+          label: '确认密码',
           type: 'input',
-          prefix: 'iconfont icon-',
-        }, {
-          prop: 'UserParent',
-          label: '父用户',
-          type: 'select',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'number',
-          defaultValue: 1,
-        }, {
+        },
+        {
+          prop: 'Sex',
+          label: '性别',
+          type: '',
+        },
+        {
+          prop: 'DeptId',
+          label: '部门',
+          type: 'select', 
+        },
+        {
+          prop: 'RoleId',
+          label: '角色',
+          type: 'select', 
+        },{
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -107,48 +128,32 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    menu(newValue) {
+    user(newValue) {
       this.dialogUser = newValue;
     },
-    parentUserList(newValue) {
-      this.dialogParentUserList = newValue;
+    roleList(newValue) {
+      this.dialogRoleList = newValue;
     },
+    deptList(newValue) {
+      this.dialogDeptList = newValue;
+    }
 
   },
   created() {
-    this.dialogUser = this.menu;
-    this.dialogParentUserList = this.parentUserList;
+    this.dialogUser = this.user;
+    this.dialogRoleList = this.roleList;
+    this.dialogDeptList = this.deptList;
   },
   components: {
   },
   mounted() {
   },
   methods: {
-    getInputStyle(field) {
-      if (this.title !== '编辑用户') {
-        switch (field.label) {
-          case '图标':
-            return {
-              'padding-left': '100px',
-              'width': '210px'
-            };
-          case '用户路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
-
-          default:
-            return '';
-        }
-      }
-    },
     confirmAction() {
       // 确认添加或编辑角色的逻辑
-      this.$refs.menuForm.validate(valid => {
+      this.$refs.userForm.validate(valid => {
         if (valid) {
-          this.dialogUser.UserUrl = this.getInputPrefix('UserUrl') + this.dialogUser.UserUrl;
-          this.dialogUser.UserIcon = this.getInputPrefix('UserIcon') + this.dialogUser.UserIcon;
+          
 
           this.$emit('confirmAction', this.dialogUser);
 
@@ -161,7 +166,7 @@ export default {
     },
     cancelDialog() {
       this.$emit('update:visible', false);
-      this.$refs.menuForm.resetFields(); // 重置表单
+      this.$refs.userForm.resetFields(); // 重置表单
     }
   }
 }

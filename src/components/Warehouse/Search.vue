@@ -4,8 +4,8 @@
       <el-col :span="12">
         <el-form :model="searchForm" ref="searchForm">
           <el-col :span="8">
-            <el-form-item prop="warehouseName">
-              <el-input v-model="searchForm.warehouseName" placeholder="请输入部门名称"></el-input>
+            <el-form-item prop="WarehouseName">
+              <el-input v-model="searchForm.WarehouseName" placeholder="请输入仓库名称"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="6" :offset="2">
@@ -21,7 +21,7 @@
         <el-button type="primary" @click="handleSearch()">搜索</el-button>
       </el-col>
       <el-col :span="2" :offset="4">
-        <el-button type="primary" @click="handleAdd()">新增部门</el-button>
+        <el-button type="primary" @click="handleAdd()">新增仓库</el-button>
       </el-col>
     </el-row>
   </div>
@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       searchForm: {
-        warehouseName: '',
+        WarehouseName: '',
         dateRange: [] // 初始化为空数组
       }
     }
@@ -43,7 +43,7 @@ export default {
       this.$emit('search', this.searchForm);
     },
     handleAdd() {
-      // 新增部门逻辑
+      // 新增仓库逻辑
       this.$emit('addWarehouse');
     }
   }

@@ -37,15 +37,22 @@ export default {
       parentDeptList: [],
       formFields: [
         {
+          prop: 'DeptId',
+          label: '部门编号',
+          type: 'input',
+        },
+        {
           prop: 'DeptName',
           label: '部门名称',
           type: 'input',
-        },{
+        },
+        {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
+
       ],
       parmas: {
         offset: (this.currentPage - 1) * this.pageSize, // 或者 (页码 - 1) * 每页显示的行数
@@ -88,7 +95,7 @@ export default {
             message: error
           });
         });
-      
+
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -121,9 +128,9 @@ export default {
     },
     showAddDeptDialog() {
       // 显示新增部门对话框的逻辑
-      this.dialogDept = { 
-        DeptParent : 1,
-       };
+      this.dialogDept = {
+        DeptParent: 1,
+      };
       this.dialogTitle = '新增部门';
       this.addEditDialogVisible = true;
     },

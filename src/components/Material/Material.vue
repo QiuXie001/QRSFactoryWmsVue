@@ -37,6 +37,11 @@ export default {
       menuIds: [],
       menuList: [],
       formFields: [
+      {
+          prop: 'MaterialNo',
+          label: '物料编号',
+          type: 'input',
+        },
         {
           prop: 'MaterialName',
           label: '物料名称',
@@ -45,6 +50,26 @@ export default {
         {
           prop: 'MaterialType',
           label: '物料类型',
+          type: 'select',
+        }, {
+          prop: 'UnitType',
+          label: '单位',
+          type: 'select',
+        }, {
+          prop: 'WarehouseId',
+          label: '所属仓库',
+          type: 'select',
+        }, {
+          prop: 'ReservoirAreaId',
+          label: '所属库区',
+          type: 'select',
+        }, {
+          prop: 'StoragerackId',
+          label: '所属货架',
+          type: 'select',
+        },{
+          prop: 'ExpiryDate',
+          label: '有效期',
           type: 'input',
         },
         {

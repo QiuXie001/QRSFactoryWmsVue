@@ -1,21 +1,22 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogMenu" :rules="rules" ref="menuForm">
+    <el-form :model="dialogDict" :rules="rules" ref="DictForm">
       <el-row v-for="field in formFields" :key="field.prop" type="flex" align="middle">
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogMenu[field.prop]" :style="getInputStyle(field)">
+            <el-input v-if="field.type === 'input'" v-model="dialogDict[field.prop]" :style="getInputStyle(field)">
               <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
             </el-input>
 
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
-              v-model="dialogMenu[field.prop]"></el-input>
-            <el-input-number v-if="field.type === 'number'" v-model="dialogMenu[field.prop]" :min="1"
+              v-model="dialogDict[field.prop]"></el-input>
+            <el-input-number v-if="field.type === 'number'" v-model="dialogDict[field.prop]" :min="1"
               :default-value="field.defaultValue"></el-input-number>
-            <el-select v-if="field.type === 'select'" v-model="dialogMenu[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="menuItem in parentMenuList" :key="menuItem.MenuId" :label="menuItem.MenuName"></el-option>
-            </el-select>
+              <el-select v-if="field.type === 'select'" v-model="dialogDict[field.prop]" placeholder="请选择">
+          
+       
+        </el-select>
           </el-form-item>
         </el-col>
       </el-row>
@@ -40,11 +41,11 @@ export default {
       type: String,
       default: ''
     },
-    menu: {
+    Dict: {
       type: Object,
       default: () => ({})
     },
-    parentMenuList: {
+    parentDictList: {
       type: Array,
       default: () => []
     },
@@ -54,10 +55,10 @@ export default {
   data() {
     return {
       rules: {
-        MenuName: [
+        DictName: [
           { required: true, message: '请输入菜单名称', trigger: 'blur' }
         ],
-        MenuType: [
+        DictType: [
           { required: true, message: '请输入菜单类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
@@ -66,37 +67,19 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogMenu: Object,
-      dialogParentMenuList: this.parentMenuList,
+      dialogDict: Object,
+      dialogParentDictList: this.parentDictList,
       formFields: [
-        {
-          prop: 'MenuName',
-          label: '菜单名称',
-          type: 'input',
-        }, {
-          prop: 'MenuType',
-          label: '菜单类型',
-          type: 'input',
-        }, {
-          prop: 'MenuUrl',
-          label: '菜单路径',
-          type: 'input',
-          prefix: '/',
-        }, {
-          prop: 'MenuIcon',
-          label: '图标',
-          type: 'input',
-          prefix: 'iconfont icon-',
-        }, {
-          prop: 'MenuParent',
-          label: '父菜单',
+      {
+          prop: 'DictType',
+          label: '字典类型',
           type: 'select',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'number',
-          defaultValue: 1,
-        }, {
+        },
+        {
+          prop: 'DictName',
+          label: '字典名称',
+          type: 'input',
+        },{
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -112,17 +95,17 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    menu(newValue) {
-      this.dialogMenu = newValue;
+    Dict(newValue) {
+      this.dialogDict = newValue;
     },
-    parentMenuList(newValue) {
-      this.dialogParentMenuList = newValue;
+    parentDictList(newValue) {
+      this.dialogParentDictList = newValue;
     },
 
   },
   created() {
-    this.dialogMenu = this.menu;
-    this.dialogParentMenuList = this.parentMenuList;
+    this.dialogDict = this.Dict;
+    this.dialogParentDictList = this.parentDictList;
   },
   components: {
   },
@@ -150,12 +133,12 @@ export default {
     },
     confirmAction() {
       // 确认添加或编辑角色的逻辑
-      this.$refs.menuForm.validate(valid => {
+      this.$refs.DictForm.validate(valid => {
         if (valid) {
-          this.dialogMenu.MenuUrl = this.getInputPrefix('MenuUrl') + this.dialogMenu.MenuUrl;
-          this.dialogMenu.MenuIcon = this.getInputPrefix('MenuIcon') + this.dialogMenu.MenuIcon;
+          this.dialogDict.DictUrl = this.getInputPrefix('DictUrl') + this.dialogDict.DictUrl;
+          this.dialogDict.DictIcon = this.getInputPrefix('DictIcon') + this.dialogDict.DictIcon;
 
-          this.$emit('confirmAction', this.dialogMenu);
+          this.$emit('confirmAction', this.dialogDict);
 
           this.cancelDialog();
         } else {
@@ -166,7 +149,7 @@ export default {
     },
     cancelDialog() {
       this.$emit('update:visible', false);
-      this.$refs.menuForm.resetFields(); // 重置表单
+      this.$refs.DictForm.resetFields(); // 重置表单
     }
   }
 }

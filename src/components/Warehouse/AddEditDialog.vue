@@ -1,24 +1,11 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogWarehouse" :rules="rules" ref="warehouseForm">
-      <el-row v-for="field in formFields" :key="field.prop" type="flex" align="middle">
-        <el-col :span="4">{{ field.label }}</el-col>
-        <el-col :span="16" :offset="2">
-          <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogWarehouse[field.prop]" :style="getInputStyle(field)">
-              <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
-            </el-input>
-
-            <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
-              v-model="dialogWarehouse[field.prop]"></el-input>
-            <el-input-number v-if="field.type === 'number'" v-model="dialogWarehouse[field.prop]" :min="1"
-              :default-value="field.defaultValue"></el-input-number>
-            <el-select v-if="field.type === 'select'" v-model="dialogWarehouse[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="warehouseItem in parentWarehouseList" :key="warehouseItem.WarehouseId" :label="warehouseItem.WarehouseName"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
+    <el-form :model="dialogWarehouse" :rules="rules" ref="WarehouseForm">
+      <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
+        <el-input v-if="field.type === 'input'" v-model="Warehouse[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Warehouse[field.prop]">
+        </el-input>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -26,7 +13,6 @@
     </span>
   </el-dialog>
 </template>
-
 
 <script>
 export default {
@@ -40,11 +26,15 @@ export default {
       type: String,
       default: ''
     },
-    warehouse: {
+    Warehouse: {
       type: Object,
       default: () => ({})
     },
-    parentWarehouseList: {
+    menuList: {
+      type: Array,
+      default: () => []
+    },
+    menuIds: {
       type: Array,
       default: () => []
     },
@@ -55,10 +45,10 @@ export default {
     return {
       rules: {
         WarehouseName: [
-          { required: true, message: '请输入菜单名称', trigger: 'blur' }
+          { required: true, message: '请输入仓库名称', trigger: 'blur' }
         ],
         WarehouseType: [
-          { required: true, message: '请输入菜单类型', trigger: 'blur' }
+          { required: true, message: '请输入仓库类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -67,42 +57,26 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogWarehouse: Object,
-      dialogParentWarehouseList: this.parentWarehouseList,
+      dialogMenuList: this.menuList,
       formFields: [
         {
+          prop: 'WarehouseNo',
+          label: '仓库编号',
+          type: 'input',
+        },
+        {
           prop: 'WarehouseName',
-          label: '菜单名称',
+          label: '仓库名称',
           type: 'input',
-        }, {
-          prop: 'WarehouseType',
-          label: '菜单类型',
-          type: 'input',
-        }, {
-          prop: 'WarehouseUrl',
-          label: '菜单路径',
-          type: 'input',
-          prefix: '/',
-        }, {
-          prop: 'WarehouseIcon',
-          label: '图标',
-          type: 'input',
-          prefix: 'iconfont icon-',
-        }, {
-          prop: 'WarehouseParent',
-          label: '父菜单',
-          type: 'select',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'number',
-          defaultValue: 1,
-        }, {
+        },
+        {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
       ],
+      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -112,51 +86,61 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    warehouse(newValue) {
+    Warehouse(newValue) {
       this.dialogWarehouse = newValue;
     },
-    parentWarehouseList(newValue) {
-      this.dialogParentWarehouseList = newValue;
+    menuList(newValue) {
+      this.dialogMenuList = newValue;
     },
-
+    menuIds(newValue) {
+      this.dialogMenuIds = newValue;
+      this.dialogMenuList.forEach(menu => {
+        if (this.dialogMenuIds.includes(menu.MenuId)) {
+          menu.expanded = true;
+        } else {
+          menu.expanded = false;
+        }
+      });
+    },
   },
   created() {
-    this.dialogWarehouse = this.warehouse;
-    this.dialogParentWarehouseList = this.parentWarehouseList;
-  },
-  components: {
+    this.dialogWarehouse = this.Warehouse;
+    this.dialogMenuList = this.menuList;
+    this.dialogMenuIds = this.menuIds;
+
   },
   mounted() {
   },
   methods: {
-    getInputStyle(field) {
-      if (this.title !== '编辑菜单') {
-        switch (field.label) {
-          case '图标':
-            return {
-              'padding-left': '100px',
-              'width': '210px'
-            };
-          case '菜单路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
-
-          default:
-            return '';
-        }
+    toggleChildren(menu) {
+      menu.expanded = !menu.expanded;
+    },
+    handleParentChange(menu) {
+      if (this.menuIds.includes(menu.MenuId)) {
+        menu.Children.forEach(child => {
+          if (!this.menuIds.includes(child.MenuId)) {
+            this.dialogMenuIds.push(child.MenuId);
+          }
+        });
+      } else {
+        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
+        menu.expanded = false;
+        menu.Children.forEach(child => {
+          const index = this.menuIds.indexOf(child.MenuId);
+          if (index !== -1) {
+            this.dialogMenuIds.splice(index, 1);
+          }
+        });
       }
     },
     confirmAction() {
-      // 确认添加或编辑角色的逻辑
-      this.$refs.warehouseForm.validate(valid => {
+      // 确认添加或编辑仓库的逻辑
+      this.$refs.WarehouseForm.validate(valid => {
         if (valid) {
-          this.dialogWarehouse.WarehouseUrl = this.getInputPrefix('WarehouseUrl') + this.dialogWarehouse.WarehouseUrl;
-          this.dialogWarehouse.WarehouseIcon = this.getInputPrefix('WarehouseIcon') + this.dialogWarehouse.WarehouseIcon;
-
-          this.$emit('confirmAction', this.dialogWarehouse);
-
+          this.$emit('confirmAction', this.dialogWarehouse, this.menuIds);
+          console.log('数据发出');
+          console.log(this.dialogWarehouse);
+          console.log(this.menuIds);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -165,8 +149,14 @@ export default {
       });
     },
     cancelDialog() {
+      // 重置表单的逻辑
+      this.dialogWarehouse = null;
+      this.dialogMenuIds = [];
+      this.menuList.forEach(menu => {
+        menu.expanded = false;
+      });
+
       this.$emit('update:visible', false);
-      this.$refs.warehouseForm.resetFields(); // 重置表单
     }
   }
 }

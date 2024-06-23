@@ -9,13 +9,23 @@
             </el-table-column>
             <el-table-column prop="UserName" label="用户名"></el-table-column>
             <el-table-column prop="UserNickname" label="昵称"></el-table-column>
-            <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
-            <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
+            <el-table-column prop="DeptName" label="部门"></el-table-column>
+            <el-table-column prop="RoleName" label="角色"></el-table-column>
+            <el-table-column prop="Tel" label="手机"></el-table-column>
+            <el-table-column prop="Email" label="邮箱"></el-table-column>
+            <el-table-column prop="Sex" label="性别">
+                <template slot-scope="scope">
+                    {{ scope.row.IsDel === 0 ? '男' : '女' }}
+                </template>
+            </el-table-column>
             <el-table-column prop="IsDel" label="是否禁用">
                 <template slot-scope="scope">
                     {{ scope.row.IsDel === 0 ? '是' : '否' }}
                 </template>
             </el-table-column>
+            <el-table-column prop="Reamrk" label="备注"></el-table-column>
+            <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
+            <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
             <!-- 添加更多列，根据需要定义 -->
         </el-table>
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize"

@@ -36,9 +36,15 @@ export default {
       selectedDict: {},
       parentDictList: [],
       formFields: [
+   
         {
           prop: 'DictName',
           label: '字典名称',
+          type: 'input',
+        },
+        {
+          prop: 'DictType',
+          label: '字典类型',
           type: 'input',
         },{
           prop: 'Remark',
@@ -121,9 +127,7 @@ export default {
     },
     showAddDictDialog() {
       // 显示新增字典对话框的逻辑
-      this.dialogDict = { 
-        DictParent : 1,
-       };
+     
       this.dialogTitle = '新增字典';
       this.addEditDialogVisible = true;
     },

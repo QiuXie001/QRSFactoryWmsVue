@@ -70,38 +70,22 @@ export default {
       dialogParentMenuList: this.parentMenuList,
       formFields: [
         {
-          prop: 'MenuName',
-          label: '菜单名称',
+          prop: 'DeptId',
+          label: '部门编号',
           type: 'input',
-        }, {
-          prop: 'MenuType',
-          label: '菜单类型',
+        },
+        {
+          prop: 'DeptName',
+          label: '部门名称',
           type: 'input',
-        }, {
-          prop: 'MenuUrl',
-          label: '菜单路径',
-          type: 'input',
-          prefix: '/',
-        }, {
-          prop: 'MenuIcon',
-          label: '图标',
-          type: 'input',
-          prefix: 'iconfont icon-',
-        }, {
-          prop: 'MenuParent',
-          label: '父菜单',
-          type: 'select',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'number',
-          defaultValue: 1,
-        }, {
+        },
+        {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
+
       ],
     }
   },

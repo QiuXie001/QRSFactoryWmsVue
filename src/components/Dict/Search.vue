@@ -44,7 +44,7 @@ export default {
     },
     handleAdd() {
       // 新增部门逻辑
-      this.$emit('addDept');
+      this.$emit('addDict');
     }
   }
 }

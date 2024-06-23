@@ -4,7 +4,7 @@
     <List :rows="userList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editUser="showEditUserDialog"
       @deleteUser="handleDeleteUser" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :user="selectedUser"
-      :parentUserList="parentUserList" :formFields="formFields" @confirmAction="confirmAddEditUser"
+      :roleList="roleList" :deptList="deptList" :formFields="formFields" @confirmAction="confirmAddEditUser"
       @cancel="cancelAddEditUser" />
   </div>
 </template>
@@ -34,13 +34,43 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedUser: {},
-      parentUserList: [],
+      roleList: {},
+      deptList: {},
       formFields: [
         {
           prop: 'UserName',
           label: '用户名称',
           type: 'input',
-        },{
+        },
+        {
+          prop: 'UserNickname',
+          label: '昵称',
+          type: 'input',
+        }, {
+          prop: 'Pwd',
+          label: '初始密码',
+          type: 'input',
+        },
+        {
+          prop: 'TwicePwd',
+          label: '确认密码',
+          type: 'input',
+        },
+        {
+          prop: 'Sex',
+          label: '性别',
+          type: '',
+        },
+        {
+          prop: 'Dept',
+          label: '部门',
+          type: 'select',
+        },
+        {
+          prop: 'Role',
+          label: '角色',
+          type: 'select',
+        }, {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -88,7 +118,53 @@ export default {
             message: error
           });
         });
-      
+
+      const RoleFormData = new FormData();
+      RoleFormData.append("token", this.$store.state.token);
+      RoleFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Role/GetRoleList', UserFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.roleList=data;
+            console.log(this.roleList);
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+      const deptFormData = new FormData();
+      deptFormData.append("token", this.$store.state.token);
+      deptFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Dept/GetDeptList', UserFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.deptList = data;
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -121,28 +197,35 @@ export default {
     },
     showAddUserDialog() {
       // 显示新增用户对话框的逻辑
-      this.dialogUser = { 
-        UserParent : 1,
-       };
+      this.dialogUser = {
+        UserParent: 1,
+      };
       this.dialogTitle = '新增用户';
       this.addEditDialogVisible = true;
     },
     confirmAddEditUser(userData) {
       if (this.dialogTitle === '新增用户') {
+        console.log(userData);
         const userDto = {
-          UserType: userData.UserType,
+          
           UserName: userData.UserName,
+          UserNickname:userData.UserNickname,
+          Pwd:userData.Pwd,
+          Sex:1,
+          DeptId:userData.DeptId,
+          RoleId:userData.RoleId,
           Remark: userData.Remark,
-          UserParent: userData.UserParent,
-          UserUrl: userData.UserUrl,
-          UserIcon: userData.UserIcon,
-          UserOrder: userData.UserOrder,
+          Sort:1,
+          Email:"default",
+          Tel:"default",
+          LoginIp:"default",
+          
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("user", JSON.stringify(userDto));
-        this.$axios.post(this.$httpUrl + '/User/InsertUser', UserFormData)
+        this.$axios.post(this.$httpUrl + '/User/Add', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {

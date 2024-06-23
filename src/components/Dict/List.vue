@@ -7,15 +7,13 @@
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="DeptNo" label="部门编号"></el-table-column>
-            <el-table-column prop="DeptName" label="部门名称"></el-table-column>
+        
+            <el-table-column prop="DictName" label="字典名称"></el-table-column>
+            <el-table-column prop="DictType" label="字典类型"></el-table-column>
+            <el-table-column prop="Remark" label="备注"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
-            <el-table-column prop="IsDel" label="是否禁用">
-                <template slot-scope="scope">
-                    {{ scope.row.IsDel === 0 ? '是' : '否' }}
-                </template>
-            </el-table-column>
+            
             <!-- 添加更多列，根据需要定义 -->
         </el-table>
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize"
@@ -55,11 +53,11 @@ export default {
         },
         handleEdit(index, row) {
             // 触发编辑部门事件，传递当前行数据
-            this.$emit('editDept', row);
+            this.$emit('editDict', row);
         },
         handleDelete(index, row) {
             // 触发删除部门事件，传递当前行数据
-            this.$emit('deleteDept', row);
+            this.$emit('deleteDict', row);
         },
         handlePageChange(newPage) {
             // 触发分页变化事件，传递新的页码

@@ -1,24 +1,11 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogMenu" :rules="rules" ref="menuForm">
-      <el-row v-for="field in formFields" :key="field.prop" type="flex" align="middle">
-        <el-col :span="4">{{ field.label }}</el-col>
-        <el-col :span="16" :offset="2">
-          <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogMenu[field.prop]" :style="getInputStyle(field)">
-              <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
-            </el-input>
-
-            <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
-              v-model="dialogMenu[field.prop]"></el-input>
-            <el-input-number v-if="field.type === 'number'" v-model="dialogMenu[field.prop]" :min="1"
-              :default-value="field.defaultValue"></el-input-number>
-            <el-select v-if="field.type === 'select'" v-model="dialogMenu[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="menuItem in parentMenuList" :key="menuItem.MenuId" :label="menuItem.MenuName"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
+    <el-form :model="dialogStorageRack" :rules="rules" ref="StorageRackForm">
+      <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
+        <el-input v-if="field.type === 'input'" v-model="StorageRack[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="StorageRack[field.prop]">
+        </el-input>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -26,7 +13,6 @@
     </span>
   </el-dialog>
 </template>
-
 
 <script>
 export default {
@@ -40,11 +26,15 @@ export default {
       type: String,
       default: ''
     },
-    menu: {
+    StorageRack: {
       type: Object,
       default: () => ({})
     },
-    parentMenuList: {
+    menuList: {
+      type: Array,
+      default: () => []
+    },
+    menuIds: {
       type: Array,
       default: () => []
     },
@@ -54,11 +44,8 @@ export default {
   data() {
     return {
       rules: {
-        MenuName: [
-          { required: true, message: '请输入菜单名称', trigger: 'blur' }
-        ],
-        MenuType: [
-          { required: true, message: '请输入菜单类型', trigger: 'blur' }
+        StorageRackName: [
+          { required: true, message: '请输入货架名称', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -66,43 +53,37 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogMenu: Object,
-      dialogParentMenuList: this.parentMenuList,
+      dialogStorageRack: Object,
+      dialogMenuList: this.menuList,
       formFields: [
         {
-          prop: 'MenuName',
-          label: '菜单名称',
+          prop: 'StorageRackNo',
+          label: '货架编号',
           type: 'input',
-        }, {
-          prop: 'MenuType',
-          label: '菜单类型',
+        },
+        {
+          prop: 'StorageRackName',
+          label: '货架名称',
           type: 'input',
-        }, {
-          prop: 'MenuUrl',
-          label: '菜单路径',
-          type: 'input',
-          prefix: '/',
-        }, {
-          prop: 'MenuIcon',
-          label: '图标',
-          type: 'input',
-          prefix: 'iconfont icon-',
-        }, {
-          prop: 'MenuParent',
-          label: '父菜单',
+        },
+        {
+          prop: 'WarehouseId',
+          label: '所属仓库',
           type: 'select',
-        }, {
-          prop: 'Sort',
-          label: '展示顺序',
-          type: 'number',
-          defaultValue: 1,
-        }, {
+        },
+        {
+          prop: 'ReservoirAreaId',
+          label: '所属库区',
+          type: 'select',
+        },
+        {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
       ],
+      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -112,51 +93,61 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    menu(newValue) {
-      this.dialogMenu = newValue;
+    StorageRack(newValue) {
+      this.dialogStorageRack = newValue;
     },
-    parentMenuList(newValue) {
-      this.dialogParentMenuList = newValue;
+    menuList(newValue) {
+      this.dialogMenuList = newValue;
     },
-
+    menuIds(newValue) {
+      this.dialogMenuIds = newValue;
+      this.dialogMenuList.forEach(menu => {
+        if (this.dialogMenuIds.includes(menu.MenuId)) {
+          menu.expanded = true;
+        } else {
+          menu.expanded = false;
+        }
+      });
+    },
   },
   created() {
-    this.dialogMenu = this.menu;
-    this.dialogParentMenuList = this.parentMenuList;
-  },
-  components: {
+    this.dialogStorageRack = this.StorageRack;
+    this.dialogMenuList = this.menuList;
+    this.dialogMenuIds = this.menuIds;
+
   },
   mounted() {
   },
   methods: {
-    getInputStyle(field) {
-      if (this.title !== '编辑菜单') {
-        switch (field.label) {
-          case '图标':
-            return {
-              'padding-left': '100px',
-              'width': '210px'
-            };
-          case '菜单路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
-
-          default:
-            return '';
-        }
+    toggleChildren(menu) {
+      menu.expanded = !menu.expanded;
+    },
+    handleParentChange(menu) {
+      if (this.menuIds.includes(menu.MenuId)) {
+        menu.Children.forEach(child => {
+          if (!this.menuIds.includes(child.MenuId)) {
+            this.dialogMenuIds.push(child.MenuId);
+          }
+        });
+      } else {
+        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
+        menu.expanded = false;
+        menu.Children.forEach(child => {
+          const index = this.menuIds.indexOf(child.MenuId);
+          if (index !== -1) {
+            this.dialogMenuIds.splice(index, 1);
+          }
+        });
       }
     },
     confirmAction() {
-      // 确认添加或编辑角色的逻辑
-      this.$refs.menuForm.validate(valid => {
+      // 确认添加或编辑货架的逻辑
+      this.$refs.StorageRackForm.validate(valid => {
         if (valid) {
-          this.dialogMenu.MenuUrl = this.getInputPrefix('MenuUrl') + this.dialogMenu.MenuUrl;
-          this.dialogMenu.MenuIcon = this.getInputPrefix('MenuIcon') + this.dialogMenu.MenuIcon;
-
-          this.$emit('confirmAction', this.dialogMenu);
-
+          this.$emit('confirmAction', this.dialogStorageRack, this.menuIds);
+          console.log('数据发出');
+          console.log(this.dialogStorageRack);
+          console.log(this.menuIds);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -165,8 +156,14 @@ export default {
       });
     },
     cancelDialog() {
+      // 重置表单的逻辑
+      this.dialogStorageRack = null;
+      this.dialogMenuIds = [];
+      this.menuList.forEach(menu => {
+        menu.expanded = false;
+      });
+
       this.$emit('update:visible', false);
-      this.$refs.menuForm.resetFields(); // 重置表单
     }
   }
 }

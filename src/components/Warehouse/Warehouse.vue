@@ -1,24 +1,24 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addWarehouse="showAddWarehouseDialog" :currentPage="currentPage" @update-page="updatePage" />
-    <List :rows="warehouseList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editWarehouse="showEditWarehouseDialog"
-      @deleteWarehouse="handleDeleteWarehouse" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :warehouse="selectedWarehouse"
-      :parentWarehouseList="parentWarehouseList" :formFields="formFields" @confirmAction="confirmAddEditWarehouse"
+    <Search @search="handleSearch" @addWarehouse="showAddWarehouseDialog" />
+    <WarehouseList :rows="WarehouseList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
+      @editWarehouse="showEditWarehouseDialog" @deleteWarehouse="handleDeleteWarehouse" @pageChange="handlePageChange" />
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Warehouse="selectedWarehouse"
+      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditWarehouse"
       @cancel="cancelAddEditWarehouse" />
   </div>
 </template>
 
 <script>
 import Search from './Search';
-import List from './List';
+import WarehouseList from './List';
 import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Warehouse',
   components: {
     Search,
-    List,
+    WarehouseList,
     AddEditDialog
   },
 
@@ -27,20 +27,27 @@ export default {
   },
   data() {
     return {
-      warehouseList: [],
+      WarehouseList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedWarehouse: {},
-      parentWarehouseList: [],
+      menuIds: [],
+      menuList: [],
       formFields: [
         {
+          prop: 'WarehouseNo',
+          label: '仓库编号',
+          type: 'select',
+        },
+        {
           prop: 'WarehouseName',
-          label: '部门名称',
-          type: 'input',
-        },{
+          label: '仓库名称',
+          type: 'select',
+        },
+        {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -52,7 +59,7 @@ export default {
         limit: 8, // 每页显示的行数
         sort: 'CreateDate', // 排序字段
         order: 'desc', // 排序方式
-        search: '', // 搜索关键词
+        search: null, // 搜索关键词
         _: Date.now(), // 时间戳或随机数
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
@@ -68,11 +75,11 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Warehouse/List', UserFormData)
+      this.$axios.post(this.$httpUrl + 'Warehouse/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.warehouseList = data.rows;
+            this.WarehouseList = data.rows; // 假设data.rows是你的仓库列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -88,7 +95,6 @@ export default {
             message: error
           });
         });
-      
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -116,32 +122,27 @@ export default {
         this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
 
       }
-      this.parmas.search = searchData.warehouseName;
-      this.init(); // 重新获取数据
+      this.parmas.search = searchData.WarehouseName;
+      this.init();
     },
     showAddWarehouseDialog() {
-      // 显示新增部门对话框的逻辑
-      this.dialogWarehouse = { 
-        WarehouseParent : 1,
-       };
-      this.dialogTitle = '新增部门';
+      // 显示新增仓库对话框的逻辑
+      this.dialogTitle = '新增仓库';
+      this.selectedWarehouse = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditWarehouse(warehouseData) {
-      if (this.dialogTitle === '新增部门') {
-        const warehouseDto = {
-          WarehouseType: warehouseData.WarehouseType,
-          WarehouseName: warehouseData.WarehouseName,
-          Remark: warehouseData.Remark,
-          WarehouseParent: warehouseData.WarehouseParent,
-          WarehouseUrl: warehouseData.WarehouseUrl,
-          WarehouseIcon: warehouseData.WarehouseIcon,
-          WarehouseOrder: warehouseData.WarehouseOrder,
+    confirmAddEditWarehouse(WarehouseData, menuIds) {
+      if (this.dialogTitle === '新增仓库') {
+        const WarehouseDto = {
+          WarehouseType: WarehouseData.WarehouseType,
+          WarehouseName: WarehouseData.WarehouseName,
+          Remark: WarehouseData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("warehouse", JSON.stringify(warehouseDto));
+        UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
+        UserFormData.append("menuId", menuIds);
         this.$axios.post(this.$httpUrl + '/Warehouse/InsertWarehouse', UserFormData)
           .then(response => {
             const data = response.data;
@@ -150,8 +151,6 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
-              console.log()
-              this.init(); // 重新获取数据
             } else {
               this.$message({
                 type: 'error',
@@ -166,33 +165,69 @@ export default {
             });
           });
       }
-      else if (this.dialogTitle === '编辑部门') {
-        //
+      else if (this.dialogTitle === '编辑仓库') {
+        const WarehouseDto = {
+          WarehouseId: WarehouseData.WarehouseId,
+          WarehouseType: WarehouseData.WarehouseType,
+          WarehouseName: WarehouseData.WarehouseName,
+          Remark: WarehouseData.Remark
+        };
+        const UserFormData = new FormData();
+        UserFormData.append("token", this.$store.state.token);
+        UserFormData.append("userId", this.$store.state.user.UserId);
+        UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
+        UserFormData.append("menuId", menuIds);
+        this.$axios.post(this.$httpUrl + 'Warehouse/AddOrUpdate', UserFormData)
+          .then(response => {
+            const data = response.data;
+            if (data.Item1) {
+              this.$message({
+                type: 'success',
+                message: data.Item2
+              });
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
       }
-
+      // 确认添加或编辑仓库的逻辑
       this.dialogVisible = false;
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
-    showEditWarehouseDialog(warehouse) {
-      // 显示编辑部门对话框的逻辑
-      this.dialogTitle = '编辑部门';
-      this.selectedWarehouse = warehouse;
-      this.addEditDialogVisible = true;
+    extractIdsFromMenu(menuData) {
+      let ids = [];
+      menuData.forEach(item => {
+        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
+        if (item.Children && item.Children.length > 0) {
+          // 如果有子菜单，递归调用
+          ids = ids.concat(this.extractIdsFromMenu(item.Children));
+        }
+      });
+      return ids;
     },
     cancelAddEditWarehouse() {
-      // 取消添加或编辑部门的逻辑
+      // 取消添加或编辑仓库的逻辑
       this.dialogVisible = false;
     },
-    handleDeleteWarehouse(warehouseData) {
-      const warehouseDto = {
-        WarehouseId: warehouseData.WarehouseId
+    handleDeleteWarehouse(WarehouseData) {
+      const WarehouseDto = {
+        WarehouseId: WarehouseData.WarehouseId
       };
       const UserFormData = new FormData();
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("warehouse", JSON.stringify(warehouseDto));
-      this.$axios.post(this.$httpUrl + '/Warehouse/DeleteWarehouse', UserFormData)
+      UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
+      this.$axios.post(this.$httpUrl + 'Warehouse/Delete', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {
@@ -215,10 +250,6 @@ export default {
           });
         });
     },
-    updatePage(newPage) {
-      this.currentPage = newPage;
-    },
-
   }
 }
 </script>

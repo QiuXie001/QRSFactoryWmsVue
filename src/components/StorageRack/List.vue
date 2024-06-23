@@ -7,15 +7,14 @@
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="StorageRackNo" label="部门编号"></el-table-column>
-            <el-table-column prop="StorageRackName" label="部门名称"></el-table-column>
-            <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
-            <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
-            <el-table-column prop="IsDel" label="是否禁用">
-                <template slot-scope="scope">
-                    {{ scope.row.IsDel === 0 ? '是' : '否' }}
-                </template>
-            </el-table-column>
+          <el-table-column prop="StorageRackNo" label="货架编号"></el-table-column>
+          <el-table-column prop="StorageRackName" label="货架名称"></el-table-column>
+          <el-table-column prop="WarehouseId" label="所属仓库"></el-table-column>
+          <el-table-column prop="ReservoirAreaId" label="所属库区"></el-table-column>
+          <el-table-column prop="Remark" label="备注"></el-table-column>
+          <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
+          <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
+
             <!-- 添加更多列，根据需要定义 -->
         </el-table>
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize"
@@ -54,11 +53,11 @@ export default {
             return cellValue === 1 ? "是" : "否";
         },
         handleEdit(index, row) {
-            // 触发编辑部门事件，传递当前行数据
+            // 触发编辑货架事件，传递当前行数据
             this.$emit('editStorageRack', row);
         },
         handleDelete(index, row) {
-            // 触发删除部门事件，传递当前行数据
+            // 触发删除货架事件，传递当前行数据
             this.$emit('deleteStorageRack', row);
         },
         handlePageChange(newPage) {
