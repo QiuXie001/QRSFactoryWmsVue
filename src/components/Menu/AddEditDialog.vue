@@ -14,7 +14,9 @@
             <el-input-number v-if="field.type === 'number'" v-model="dialogMenu[field.prop]" :min="1"
               :default-value="field.defaultValue"></el-input-number>
             <el-select v-if="field.type === 'select'" v-model="dialogMenu[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="menuItem in parentMenuList" :key="menuItem.MenuId" :label="menuItem.MenuName"></el-option>
+              <el-option label="无" :value='-1'></el-option>
+              <el-option v-for="menuItem in parentMenuList" :key="menuItem.MenuId" :label="menuItem.MenuName"
+                :value="menuItem.MenuId"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -53,6 +55,10 @@ export default {
   },
   data() {
     return {
+      options: [{
+
+
+      }],
       rules: {
         MenuName: [
           { required: true, message: '请输入菜单名称', trigger: 'blur' }
@@ -81,7 +87,6 @@ export default {
           prop: 'MenuUrl',
           label: '菜单路径',
           type: 'input',
-          prefix: '/',
         }, {
           prop: 'MenuIcon',
           label: '图标',
@@ -137,11 +142,11 @@ export default {
               'padding-left': '100px',
               'width': '210px'
             };
-          case '菜单路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
+          // case '菜单路径':
+          //   return {
+          //     'padding-left': '20px',
+          //     'width': '290px'
+          //   };
 
           default:
             return '';
@@ -152,9 +157,10 @@ export default {
       // 确认添加或编辑角色的逻辑
       this.$refs.menuForm.validate(valid => {
         if (valid) {
-          this.dialogMenu.MenuUrl = this.getInputPrefix('MenuUrl') + this.dialogMenu.MenuUrl;
-          this.dialogMenu.MenuIcon = this.getInputPrefix('MenuIcon') + this.dialogMenu.MenuIcon;
-
+          if (this.title === '新增菜单') {
+            this.dialogMenu.MenuUrl = this.getInputPrefix('MenuUrl') + this.dialogMenu.MenuUrl;
+            this.dialogMenu.MenuIcon = this.getInputPrefix('MenuIcon') + this.dialogMenu.MenuIcon;
+          }
           this.$emit('confirmAction', this.dialogMenu);
 
           this.cancelDialog();
@@ -166,7 +172,7 @@ export default {
     },
     cancelDialog() {
       this.$emit('update:visible', false);
-      this.$refs.menuForm.resetFields(); // 重置表单
+      this.dialogMenu = {};
     }
   }
 }

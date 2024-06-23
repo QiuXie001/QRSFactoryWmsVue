@@ -173,9 +173,7 @@ export default {
     },
     showAddMenuDialog() {
       // 显示新增菜单对话框的逻辑
-      this.dialogMenu = { 
-        MenuParent : 1,
-       };
+      this.dialogMenu = { };
       this.dialogTitle = '新增菜单';
       this.addEditDialogVisible = true;
     },
@@ -185,6 +183,7 @@ export default {
           MenuType: menuData.MenuType,
           MenuName: menuData.MenuName,
           Remark: menuData.Remark,
+          Sort: menuData.Sort,
           MenuParent: menuData.MenuParent,
           MenuUrl: menuData.MenuUrl,
           MenuIcon: menuData.MenuIcon,
@@ -219,7 +218,44 @@ export default {
           });
       }
       else if (this.dialogTitle === '编辑菜单') {
-        //
+        const menuDto = {
+          MenuId: menuData.MenuId,
+          MenuType: menuData.MenuType,
+          MenuName: menuData.MenuName,
+          Remark: menuData.Remark,
+          Sort: menuData.Sort,
+          MenuParent: menuData.MenuParent,
+          MenuUrl: menuData.MenuUrl,
+          MenuIcon: menuData.MenuIcon,
+          MenuOrder: menuData.MenuOrder,
+        };
+        const UserFormData = new FormData();
+        UserFormData.append("token", this.$store.state.token);
+        UserFormData.append("userId", this.$store.state.user.UserId);
+        UserFormData.append("menu", JSON.stringify(menuDto));
+        this.$axios.post(this.$httpUrl + '/Menu/UpdateMenu', UserFormData)
+          .then(response => {
+            const data = response.data;
+            if (data.Item1) {
+              this.$message({
+                type: 'success',
+                message: data.Item2
+              });
+              console.log()
+              this.init(); // 重新获取数据
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
       }
 
       this.dialogVisible = false;
