@@ -48,14 +48,6 @@ export default {
         formatIsDel(row, column, cellValue) {
             return cellValue === 1 ? "是" : "否";
         },
-        handleEdit(index, row) {
-            // 触发编辑角色事件，传递当前行数据
-            this.$emit('editInventoryRecord', row);
-        },
-        handleDelete(index, row) {
-            // 触发删除角色事件，传递当前行数据
-            this.$emit('deleteInventoryRecord', row);
-        },
         handlePageChange(newPage) {
             // 触发分页变化事件，传递新的页码
             this.$emit('pageChange', newPage);

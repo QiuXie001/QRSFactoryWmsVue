@@ -80,35 +80,13 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Inventorymove/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Inventorymove/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.InventorymoveList = data.rows; // 假设data.rows是你的承运商列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
           } else {
             this.$message({
               type: 'error',

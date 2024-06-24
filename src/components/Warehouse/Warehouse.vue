@@ -75,7 +75,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + 'Warehouse/List', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Warehouse/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
@@ -129,6 +129,12 @@ export default {
       // 显示新增仓库对话框的逻辑
       this.dialogTitle = '新增仓库';
       this.selectedWarehouse = {};
+      this.addEditDialogVisible = true;
+    },
+    showEditWarehouseDialog(warehouse) {
+      // 显示编辑仓库对话框的逻辑
+      this.dialogTitle = '编辑仓库';
+      this.selectedWarehouse = warehouse;
       this.addEditDialogVisible = true;
     },
     confirmAddEditWarehouse(WarehouseData, menuIds) {

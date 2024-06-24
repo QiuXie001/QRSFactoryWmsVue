@@ -30,14 +30,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
-    },
-    menuIds: {
-      type: Array,
-      default: () => []
-    },
   },
   computed: {
   },
@@ -57,7 +49,6 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogCarrier: Object,
-      dialogMenuList: this.menuList,
       formFields: [
       {
           prop: 'CarrierNo',
@@ -100,7 +91,6 @@ export default {
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -113,58 +103,21 @@ export default {
     Carrier(newValue) {
       this.dialogCarrier = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
-    },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
-    },
   },
   created() {
     this.dialogCarrier = this.Carrier;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
 
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
-    handleParentChange(menu) {
-      if (this.menuIds.includes(menu.MenuId)) {
-        menu.Children.forEach(child => {
-          if (!this.menuIds.includes(child.MenuId)) {
-            this.dialogMenuIds.push(child.MenuId);
-          }
-        });
-      } else {
-        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
-        menu.expanded = false;
-        menu.Children.forEach(child => {
-          const index = this.menuIds.indexOf(child.MenuId);
-          if (index !== -1) {
-            this.dialogMenuIds.splice(index, 1);
-          }
-        });
-      }
-    },
     confirmAction() {
       // 确认添加或编辑承运商的逻辑
       this.$refs.CarrierForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogCarrier, this.menuIds);
+          this.$emit('confirmAction', this.dialogCarrier);
           console.log('数据发出');
           console.log(this.dialogCarrier);
-          console.log(this.menuIds);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -174,11 +127,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogCarrier = null;
-      this.dialogMenuIds = [];
-      this.menuList.forEach(menu => {
-        menu.expanded = false;
-      });
+      this.dialogCarrier = {};
 
       this.$emit('update:visible', false);
     }

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addInventoryRecord="showAddInventoryRecordDialog" />
+    <Search @search="handleSearch" />
     <InventoryRecordList :rows="InventoryRecordList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
-      @editInventoryRecord="showEditInventoryRecordDialog" @deleteInventoryRecord="handleDeleteInventoryRecord" @pageChange="handlePageChange" />
+      @pageChange="handlePageChange" />
   
   </div>
 </template>
@@ -32,8 +32,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedInventoryRecord: {},
-      menuIds: [],
-      menuList: [],
       
       parmas: {
         offset: (this.currentPage - 1) * this.pageSize, // 或者 (页码 - 1) * 每页显示的行数
@@ -56,35 +54,13 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/InventoryRecord/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/InventoryRecord/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.InventoryRecordList = data.rows; // 假设data.rows是你的角色列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
           } else {
             this.$message({
               type: 'error',
@@ -127,160 +103,6 @@ export default {
       }
       this.parmas.search = searchData.InventoryRecordName;
       this.init();
-    },
-    showAddInventoryRecordDialog() {
-      // 显示新增角色对话框的逻辑
-      this.dialogTitle = '新增角色';
-      this.selectedInventoryRecord = {};
-      this.addEditDialogVisible = true;
-    },
-    confirmAddEditInventoryRecord(InventoryRecordData, menuIds) {
-      if (this.dialogTitle === '新增角色') {
-        const InventoryRecordDto = {
-          InventoryRecordType: InventoryRecordData.InventoryRecordType,
-          InventoryRecordName: InventoryRecordData.InventoryRecordName,
-          Remark: InventoryRecordData.Remark,
-        };
-        const UserFormData = new FormData();
-        UserFormData.append("token", this.$store.state.token);
-        UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("InventoryRecord", JSON.stringify(InventoryRecordDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/InventoryRecord/InsertInventoryRecord', UserFormData)
-          .then(response => {
-            const data = response.data;
-            if (data.Item1) {
-              this.$message({
-                type: 'success',
-                message: data.Item2
-              });
-            } else {
-              this.$message({
-                type: 'error',
-                message: data.Item2
-              });
-            }
-          })
-          .catch(error => {
-            this.$message({
-              type: 'error',
-              message: error
-            });
-          });
-      }
-      else if (this.dialogTitle === '编辑角色') {
-        const InventoryRecordDto = {
-          InventoryRecordId: InventoryRecordData.InventoryRecordId,
-          InventoryRecordType: InventoryRecordData.InventoryRecordType,
-          InventoryRecordName: InventoryRecordData.InventoryRecordName,
-          Remark: InventoryRecordData.Remark
-        };
-        const UserFormData = new FormData();
-        UserFormData.append("token", this.$store.state.token);
-        UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("InventoryRecord", JSON.stringify(InventoryRecordDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/InventoryRecord/UpdateInventoryRecord', UserFormData)
-          .then(response => {
-            const data = response.data;
-            if (data.Item1) {
-              this.$message({
-                type: 'success',
-                message: data.Item2
-              });
-            } else {
-              this.$message({
-                type: 'error',
-                message: data.Item2
-              });
-            }
-          })
-          .catch(error => {
-            this.$message({
-              type: 'error',
-              message: error
-            });
-          });
-      }
-      // 确认添加或编辑角色的逻辑
-      this.dialogVisible = false;
-      setTimeout(1000);
-      this.init(); // 重新获取数据
-    },
-    showEditInventoryRecordDialog(InventoryRecord) {
-      // 显示编辑角色对话框的逻辑
-      this.dialogTitle = '编辑角色';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("InventoryRecordId", InventoryRecord.InventoryRecordId);
-      this.$axios.post(this.$httpUrl + '/InventoryRecord/GetMenuByInventoryRecordId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedInventoryRecord = InventoryRecord;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-    },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
-    cancelAddEditInventoryRecord() {
-      // 取消添加或编辑角色的逻辑
-      this.dialogVisible = false;
-    },
-    handleDeleteInventoryRecord(InventoryRecordData) {
-      const InventoryRecordDto = {
-        InventoryRecordId: InventoryRecordData.InventoryRecordId
-      };
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("InventoryRecord", JSON.stringify(InventoryRecordDto));
-      this.$axios.post(this.$httpUrl + '/InventoryRecord/DeleteInventoryRecord', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data.Item1) {
-            this.init();
-            this.$message({
-              type: 'success',
-              message: data.Item2
-            });
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
     },
   }
 }

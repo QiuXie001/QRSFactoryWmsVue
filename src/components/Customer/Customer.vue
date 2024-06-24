@@ -4,7 +4,7 @@
     <CustomerList :rows="CustomerList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCustomer="showEditCustomerDialog" @deleteCustomer="handleDeleteCustomer" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Customer="selectedCustomer"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditCustomer"
+      :formFields="formFields" @confirmAction="confirmAddEditCustomer"
       @cancel="cancelAddEditCustomer" />
   </div>
 </template>
@@ -34,8 +34,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedCustomer: {},
-      menuIds: [],
-      menuList: [],
       formFields: [
       {
           prop: 'CustomerNo',
@@ -99,35 +97,13 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Customer/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Customer/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.CustomerList = data.rows; // 假设data.rows是你的客户列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
           } else {
             this.$message({
               type: 'error',
@@ -281,17 +257,6 @@ export default {
             message: error
           });
         });
-    },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
     },
     cancelAddEditCustomer() {
       // 取消添加或编辑客户的逻辑

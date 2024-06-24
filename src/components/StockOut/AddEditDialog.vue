@@ -143,7 +143,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogStockOut = null;
+      this.dialogStockOut = {};
 
       this.$emit('update:visible', false);
     }

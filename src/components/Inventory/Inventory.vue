@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addInventory="showAddInventoryDialog" />
+    <Search @search="handleSearch"/>
     <InventoryList :rows="InventoryList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
-      @editInventory="showEditInventoryDialog" @deleteInventory="handleDeleteInventory" @pageChange="handlePageChange" />
+       @pageChange="handlePageChange" />
     
   </div>
 </template>
@@ -32,8 +32,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedInventory: {},
-      menuIds: [],
-      menuList: [],
       formFields: [
         {
           prop: 'InventoryName',
@@ -73,35 +71,13 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Inventory/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Inventory/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.InventoryList = data.rows; // 假设data.rows是你的角色列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
           } else {
             this.$message({
               type: 'error',
@@ -145,160 +121,7 @@ export default {
       this.parmas.search = searchData.InventoryName;
       this.init();
     },
-    showAddInventoryDialog() {
-      // 显示新增角色对话框的逻辑
-      this.dialogTitle = '新增角色';
-      this.selectedInventory = {};
-      this.addEditDialogVisible = true;
-    },
-    confirmAddEditInventory(InventoryData, menuIds) {
-      if (this.dialogTitle === '新增角色') {
-        const InventoryDto = {
-          InventoryType: InventoryData.InventoryType,
-          InventoryName: InventoryData.InventoryName,
-          Remark: InventoryData.Remark,
-        };
-        const UserFormData = new FormData();
-        UserFormData.append("token", this.$store.state.token);
-        UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Inventory", JSON.stringify(InventoryDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Inventory/InsertInventory', UserFormData)
-          .then(response => {
-            const data = response.data;
-            if (data.Item1) {
-              this.$message({
-                type: 'success',
-                message: data.Item2
-              });
-            } else {
-              this.$message({
-                type: 'error',
-                message: data.Item2
-              });
-            }
-          })
-          .catch(error => {
-            this.$message({
-              type: 'error',
-              message: error
-            });
-          });
-      }
-      else if (this.dialogTitle === '编辑角色') {
-        const InventoryDto = {
-          InventoryId: InventoryData.InventoryId,
-          InventoryType: InventoryData.InventoryType,
-          InventoryName: InventoryData.InventoryName,
-          Remark: InventoryData.Remark
-        };
-        const UserFormData = new FormData();
-        UserFormData.append("token", this.$store.state.token);
-        UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Inventory", JSON.stringify(InventoryDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Inventory/UpdateInventory', UserFormData)
-          .then(response => {
-            const data = response.data;
-            if (data.Item1) {
-              this.$message({
-                type: 'success',
-                message: data.Item2
-              });
-            } else {
-              this.$message({
-                type: 'error',
-                message: data.Item2
-              });
-            }
-          })
-          .catch(error => {
-            this.$message({
-              type: 'error',
-              message: error
-            });
-          });
-      }
-      // 确认添加或编辑角色的逻辑
-      this.dialogVisible = false;
-      setTimeout(1000);
-      this.init(); // 重新获取数据
-    },
-    showEditInventoryDialog(Inventory) {
-      // 显示编辑角色对话框的逻辑
-      this.dialogTitle = '编辑角色';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("InventoryId", Inventory.InventoryId);
-      this.$axios.post(this.$httpUrl + '/Inventory/GetMenuByInventoryId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedInventory = Inventory;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-    },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
-    cancelAddEditInventory() {
-      // 取消添加或编辑角色的逻辑
-      this.dialogVisible = false;
-    },
-    handleDeleteInventory(InventoryData) {
-      const InventoryDto = {
-        InventoryId: InventoryData.InventoryId
-      };
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("Inventory", JSON.stringify(InventoryDto));
-      this.$axios.post(this.$httpUrl + '/Inventory/DeleteInventory', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data.Item1) {
-            this.init();
-            this.$message({
-              type: 'success',
-              message: data.Item2
-            });
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-    },
+    
   }
 }
 </script>

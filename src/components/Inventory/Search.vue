@@ -39,10 +39,6 @@ export default {
     handleSearch() {
       this.$emit('search', this.searchForm);
     },
-    handleAdd() {
-      // 新增角色逻辑
-      this.$emit('addInventory');
-    }
   }
 }
 </script>

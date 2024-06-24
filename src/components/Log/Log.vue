@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addLog="showAddLogDialog" />
+    <Search @search="handleSearch" />
     <LogList :rows="LogList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
-      @editLog="showEditLogDialog" @deleteLog="handleDeleteLog" @pageChange="handlePageChange" />
+      @pageChange="handlePageChange" />
    
   </div>
 </template>
@@ -32,8 +32,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedLog: {},
-      menuIds: [],
-      menuList: [],
      
       parmas: {
         offset: (this.currentPage - 1) * this.pageSize, // 或者 (页码 - 1) * 每页显示的行数
@@ -56,7 +54,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + 'Log/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Log/GetPageList', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {

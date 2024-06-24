@@ -8,14 +8,10 @@
             <el-input v-if="field.type === 'input'" v-model="dialogDept[field.prop]" :style="getInputStyle(field)">
               <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
             </el-input>
-
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
               v-model="dialogDept[field.prop]"></el-input>
             <el-input-number v-if="field.type === 'number'" v-model="dialogDept[field.prop]" :min="1"
               :default-value="field.defaultValue"></el-input-number>
-            <el-select v-if="field.type === 'select'" v-model="dialogDept[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="deptItem in deptList" :key="deptItem.DeptId" :label="deptItem.DeptName"></el-option>
-            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
@@ -67,7 +63,6 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogDept: Object,
-      dialogDeptList: this.deptList,
       formFields: [
         {
           prop: 'DeptId',
@@ -99,14 +94,10 @@ export default {
     dept(newValue) {
       this.dialogDept = newValue;
     },
-    deptList(newValue) {
-      this.dialogParentDeptList = newValue;
-    },
 
   },
   created() {
     this.dialogDept = this.dept;
-    this.dialogParentDeptList = this.deptList;
   },
   components: {
   },
@@ -136,9 +127,6 @@ export default {
       // 确认添加或编辑角色的逻辑
       this.$refs.deptForm.validate(valid => {
         if (valid) {
-          this.dialogDept.DeptUrl = this.getInputPrefix('DeptUrl') + this.dialogDept.DeptUrl;
-          this.dialogDept.DeptIcon = this.getInputPrefix('DeptIcon') + this.dialogDept.DeptIcon;
-
           this.$emit('confirmAction', this.dialogDept);
 
           this.cancelDialog();

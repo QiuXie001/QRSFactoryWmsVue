@@ -4,7 +4,7 @@
     <CarrierList :rows="CarrierList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCarrier="showEditCarrierDialog" @deleteCarrier="handleDeleteCarrier" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Carrier="selectedCarrier"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditCarrier"
+      :formFields="formFields" @confirmAction="confirmAddEditCarrier"
       @cancel="cancelAddEditCarrier" />
   </div>
 </template>
@@ -34,8 +34,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedCarrier: {},
-      menuIds: [],
-      menuList: [],
       formFields: [
       {
           prop: 'CarrierNo',
@@ -99,7 +97,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Carrier/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Carrier/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
@@ -265,7 +263,6 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
             this.addEditDialogVisible = true;
             this.selectedCarrier = Carrier;
 
@@ -283,17 +280,7 @@ export default {
           });
         });
     },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
+    
     cancelAddEditCarrier() {
       // 取消添加或编辑承运商的逻辑
       this.dialogVisible = false;

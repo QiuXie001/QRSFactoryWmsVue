@@ -31,14 +31,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
-    },
-    menuIds: {
-      type: Array,
-      default: () => []
-    },
   },
   computed: {
   },
@@ -58,7 +50,6 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogCustomer: Object,
-      dialogMenuList: this.menuList,
       formFields: [
       {
           prop: 'CustomerNo',
@@ -101,7 +92,6 @@ export default {
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -114,50 +104,14 @@ export default {
     Customer(newValue) {
       this.dialogCustomer = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
-    },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
-    },
   },
   created() {
     this.dialogCustomer = this.Customer;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
 
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
-    handleParentChange(menu) {
-      if (this.menuIds.includes(menu.MenuId)) {
-        menu.Children.forEach(child => {
-          if (!this.menuIds.includes(child.MenuId)) {
-            this.dialogMenuIds.push(child.MenuId);
-          }
-        });
-      } else {
-        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
-        menu.expanded = false;
-        menu.Children.forEach(child => {
-          const index = this.menuIds.indexOf(child.MenuId);
-          if (index !== -1) {
-            this.dialogMenuIds.splice(index, 1);
-          }
-        });
-      }
-    },
     confirmAction() {
       // 确认添加或编辑客户的逻辑
       this.$refs.CustomerForm.validate(valid => {

@@ -99,7 +99,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/Supplier/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Supplier/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {

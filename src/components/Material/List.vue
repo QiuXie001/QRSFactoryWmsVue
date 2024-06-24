@@ -7,7 +7,7 @@
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="MaterialNo" label="客户编号"></el-table-column>
+            <el-table-column prop="MaterialNo" label="物料编号"></el-table-column>
             <el-table-column prop="MaterialName" label="物料名称"></el-table-column>
             <el-table-column prop="MaterialType" label="物料分类"></el-table-column>
             <el-table-column prop="Unit" label="单位"></el-table-column>

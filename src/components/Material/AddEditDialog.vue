@@ -177,7 +177,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogMaterial = null;
+      this.dialogMaterial = {};
      
 
       this.$emit('update:visible', false);

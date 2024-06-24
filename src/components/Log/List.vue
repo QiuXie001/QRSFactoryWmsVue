@@ -1,17 +1,11 @@
 <template>
     <div>
         <el-table :data="this.rows" border style="width: 100%">
-            <el-table-column prop="Tool" label="操作">
-                <template slot-scope="scope">
-                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
             <el-table-column prop="LogType" label="日志类型"></el-table-column>
-            <el-table-column prop="Description" label="描述"></el-table-column>
-            <el-table-column prop="Url" label="Url"></el-table-column>
-            <el-table-column prop="Browser" label="浏览器"></el-table-column>
-            <el-table-column prop="LogIp" label="IP"></el-table-column>
+            <el-table-column prop="Description" label="描述" :show-overflow-tooltip="true"></el-table-column>
+            <el-table-column prop="Url" label="Url" :show-overflow-tooltip="true"></el-table-column>
+            <el-table-column prop="Browser" label="浏览器" :show-overflow-tooltip="true"></el-table-column>
+            <el-table-column prop="LogIp" label="IP" ></el-table-column>
             <el-table-column prop="CreateBy" label="创建人"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
           
@@ -53,14 +47,6 @@ export default {
         formatIsDel(row, column, cellValue) {
             return cellValue === 1 ? "是" : "否";
         },
-        handleEdit(index, row) {
-            // 触发编辑角色事件，传递当前行数据
-            this.$emit('editLog', row);
-        },
-        handleDelete(index, row) {
-            // 触发删除角色事件，传递当前行数据
-            this.$emit('deleteLog', row);
-        },
         handlePageChange(newPage) {
             // 触发分页变化事件，传递新的页码
             this.$emit('pageChange', newPage);
@@ -68,3 +54,6 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+</style>
