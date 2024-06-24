@@ -11,7 +11,7 @@
           <el-table-column prop="OrderNo" label="订单号"></el-table-column>
           <el-table-column prop="StockInType" label="入库类型"></el-table-column>
           <el-table-column prop="SupplierId" label="供应商编号"></el-table-column>
-          <el-table-column prop="SupplierName" label="供应商名称"></el-table-column>
+          <el-table-column prop="SupplierName" label= "供应商名称"></el-table-column>
           <el-table-column prop="StockInStatus" label="状态"></el-table-column>
           <el-table-column prop="remark" label="备注"></el-table-column>
           <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>

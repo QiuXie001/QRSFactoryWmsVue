@@ -1,20 +1,20 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogMenu" :rules="rules" ref="menuForm">
+    <el-form :model="dialogDept" :rules="rules" ref="deptForm">
       <el-row v-for="field in formFields" :key="field.prop" type="flex" align="middle">
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogMenu[field.prop]" :style="getInputStyle(field)">
+            <el-input v-if="field.type === 'input'" v-model="dialogDept[field.prop]" :style="getInputStyle(field)">
               <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
             </el-input>
 
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
-              v-model="dialogMenu[field.prop]"></el-input>
-            <el-input-number v-if="field.type === 'number'" v-model="dialogMenu[field.prop]" :min="1"
+              v-model="dialogDept[field.prop]"></el-input>
+            <el-input-number v-if="field.type === 'number'" v-model="dialogDept[field.prop]" :min="1"
               :default-value="field.defaultValue"></el-input-number>
-            <el-select v-if="field.type === 'select'" v-model="dialogMenu[field.prop]" placeholder="请选择父菜单">
-              <el-option v-for="menuItem in parentMenuList" :key="menuItem.MenuId" :label="menuItem.MenuName"></el-option>
+            <el-select v-if="field.type === 'select'" v-model="dialogDept[field.prop]" placeholder="请选择父菜单">
+              <el-option v-for="deptItem in deptList" :key="deptItem.DeptId" :label="deptItem.DeptName"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -40,11 +40,11 @@ export default {
       type: String,
       default: ''
     },
-    menu: {
+    dept: {
       type: Object,
       default: () => ({})
     },
-    parentMenuList: {
+    deptList: {
       type: Array,
       default: () => []
     },
@@ -54,10 +54,10 @@ export default {
   data() {
     return {
       rules: {
-        MenuName: [
+        DeptName: [
           { required: true, message: '请输入菜单名称', trigger: 'blur' }
         ],
-        MenuType: [
+        DeptType: [
           { required: true, message: '请输入菜单类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
@@ -66,8 +66,8 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogMenu: Object,
-      dialogParentMenuList: this.parentMenuList,
+      dialogDept: Object,
+      dialogDeptList: this.deptList,
       formFields: [
         {
           prop: 'DeptId',
@@ -96,17 +96,17 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    menu(newValue) {
-      this.dialogMenu = newValue;
+    dept(newValue) {
+      this.dialogDept = newValue;
     },
-    parentMenuList(newValue) {
-      this.dialogParentMenuList = newValue;
+    deptList(newValue) {
+      this.dialogParentDeptList = newValue;
     },
 
   },
   created() {
-    this.dialogMenu = this.menu;
-    this.dialogParentMenuList = this.parentMenuList;
+    this.dialogDept = this.dept;
+    this.dialogParentDeptList = this.deptList;
   },
   components: {
   },
@@ -134,12 +134,12 @@ export default {
     },
     confirmAction() {
       // 确认添加或编辑角色的逻辑
-      this.$refs.menuForm.validate(valid => {
+      this.$refs.deptForm.validate(valid => {
         if (valid) {
-          this.dialogMenu.MenuUrl = this.getInputPrefix('MenuUrl') + this.dialogMenu.MenuUrl;
-          this.dialogMenu.MenuIcon = this.getInputPrefix('MenuIcon') + this.dialogMenu.MenuIcon;
+          this.dialogDept.DeptUrl = this.getInputPrefix('DeptUrl') + this.dialogDept.DeptUrl;
+          this.dialogDept.DeptIcon = this.getInputPrefix('DeptIcon') + this.dialogDept.DeptIcon;
 
-          this.$emit('confirmAction', this.dialogMenu);
+          this.$emit('confirmAction', this.dialogDept);
 
           this.cancelDialog();
         } else {
@@ -150,7 +150,7 @@ export default {
     },
     cancelDialog() {
       this.$emit('update:visible', false);
-      this.$refs.menuForm.resetFields(); // 重置表单
+      this.$refs.deptForm.resetFields(); // 重置表单
     }
   }
 }

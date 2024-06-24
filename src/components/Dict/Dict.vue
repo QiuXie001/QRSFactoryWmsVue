@@ -4,7 +4,7 @@
     <List :rows="dictList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editDict="showEditDictDialog"
       @deleteDict="handleDeleteDict" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :dict="selectedDict"
-      :parentDictList="parentDictList" :formFields="formFields" @confirmAction="confirmAddEditDict"
+      :dictTypeList="dictTypeList" :formFields="formFields" @confirmAction="confirmAddEditDict"
       @cancel="cancelAddEditDict" />
   </div>
 </template>
@@ -34,7 +34,16 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedDict: {},
-      parentDictList: [],
+      dictTypeList: {
+        "1":"单位类别",
+        "2": "物料分类",
+        "3": "入库单",
+        "4":"出库单",
+        "5":"设备分类",
+        "6":"设备产权",
+      },
+
+      
       formFields: [
    
         {
@@ -94,7 +103,7 @@ export default {
             message: error
           });
         });
-      
+        
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;

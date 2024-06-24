@@ -1,24 +1,24 @@
 <template>
   <div>
-    <Search @search="handleSearch" @addStockin="showAddStockinDialog" />
-    <StockinList :rows="StockinList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
-      @editStockin="showEditStockinDialog" @deleteStockin="handleDeleteStockin" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Stockin="selectedStockin"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditStockin"
-      @cancel="cancelAddEditStockin" />
+    <Search @search="handleSearch" @addStockIn="showAddStockInDialog" />
+    <StockInList :rows="StockInList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
+      @editStockIn="showEditStockInDialog" @deleteStockIn="handleDeleteStockIn" @pageChange="handlePageChange" />
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :StockIn="selectedStockIn"
+      :formFields="formFields" :supplierList="supplierList" :stockInTypeList="stockInTypeList" @confirmAction="confirmAddEditStockIn"
+      @cancel="cancelAddEditStockIn" />
   </div>
 </template>
 
 <script>
 import Search from './Search';
-import StockinList from './List';
+import StockInList from './List';
 import AddEditDialog from './AddEditDialog';
 
 export default {
-  name: 'Stockin',
+  name: 'StockIn',
   components: {
     Search,
-    StockinList,
+    StockInList,
     AddEditDialog
   },
 
@@ -27,15 +27,20 @@ export default {
   },
   data() {
     return {
-      StockinList: [],
+      StockInList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
-      selectedStockin: {},
-      menuIds: [],
-      menuList: [],
+      selectedStockIn: {},
+      stockInTypeList: {
+        "1":"采购入库单",
+        "2":"退货入库单",
+        "3":"试用入库",
+
+      },
+      supplierList:{},
       formFields: [
         
         {
@@ -69,7 +74,9 @@ export default {
         _: Date.now(), // 时间戳或随机数
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
-        keyword: null // 额外的搜索关键词
+        keyword: null, // 额外的搜索关键词
+        StockInType : null,
+        StockInStatus:null
       },
     }
   },
@@ -85,7 +92,7 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.StockinList = data.rows; // 假设data.rows是你的入库列表
+            this.StockInList = data.rows; // 假设data.rows是你的入库列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -102,14 +109,14 @@ export default {
           });
         });
 
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
+      const supplierFormData = new FormData();
+      supplierFormData.append("token", this.$store.state.token);
+      supplierFormData.append("userId", this.$store.state.user.UserId);
+      this.$axios.post(this.$httpUrl + '/Supplier/GetSupplierList', supplierFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.menuList = data.rows;
+            this.supplierList = data;
           } else {
             this.$message({
               type: 'error',
@@ -150,28 +157,28 @@ export default {
         this.parmas.datemax = endDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
 
       }
-      this.parmas.search = searchData.StockinName;
+      this.parmas.search = searchData.StockInName;
       this.init();
     },
-    showAddStockinDialog() {
+    showAddStockInDialog() {
       // 显示新增入库对话框的逻辑
       this.dialogTitle = '新增入库';
-      this.selectedStockin = {};
+      this.selectedStockIn = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditStockin(StockinData, menuIds) {
+    confirmAddEditStockIn(StockInData) {
       if (this.dialogTitle === '新增入库') {
-        const StockinDto = {
-          StockinType: StockinData.StockinType,
-          StockinName: StockinData.StockinName,
-          Remark: StockinData.Remark,
+        const StockInDto = {
+          StockInType: StockInData.StockInType,
+          StockInName: StockInData.StockInName,
+          Remark: StockInData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Stockin", JSON.stringify(StockinDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/StockIn/InsertStockin', UserFormData)
+        UserFormData.append("StockIn", JSON.stringify(StockInDto));
+
+        this.$axios.post(this.$httpUrl + '/StockIn/InsertStockIn', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -194,18 +201,18 @@ export default {
           });
       }
       else if (this.dialogTitle === '编辑入库') {
-        const StockinDto = {
-          StockinId: StockinData.StockinId,
-          StockinType: StockinData.StockinType,
-          StockinName: StockinData.StockinName,
-          Remark: StockinData.Remark
+        const StockInDto = {
+          StockInId: StockInData.StockInId,
+          StockInType: StockInData.StockInType,
+          StockInName: StockInData.StockInName,
+          Remark: StockInData.Remark
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Stockin", JSON.stringify(StockinDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/StockIn/UpdateStockin', UserFormData)
+        UserFormData.append("StockIn", JSON.stringify(StockInDto));
+       
+        this.$axios.post(this.$httpUrl + '/StockIn/UpdateStockIn', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -232,59 +239,26 @@ export default {
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
-    showEditStockinDialog(StockIn) {
+    showEditStockInDialog(StockIn) {
       // 显示编辑入库对话框的逻辑
       this.dialogTitle = '编辑入库';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("StockinId", StockIn.StockinId);
-      this.$axios.post(this.$httpUrl + '/StockIn/GetMenuByStockinId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedStockin = StockIn;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      this.addEditDialogVisible = true;
+            this.selectedStockIn = StockIn;
     },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
-    cancelAddEditStockin() {
+   
+    cancelAddEditStockIn() {
       // 取消添加或编辑入库的逻辑
       this.dialogVisible = false;
     },
-    handleDeleteStockin(StockinData) {
-      const StockinDto = {
-        StockinId: StockinData.StockinId
+    handleDeleteStockIn(StockInData) {
+      const StockInDto = {
+        StockInId: StockInData.StockInId
       };
       const UserFormData = new FormData();
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("Stockin", JSON.stringify(StockinDto));
-      this.$axios.post(this.$httpUrl + '/StockIn/DeleteStockin', UserFormData)
+      UserFormData.append("StockIn", JSON.stringify(StockInDto));
+      this.$axios.post(this.$httpUrl + '/StockIn/DeleteStockIn', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {

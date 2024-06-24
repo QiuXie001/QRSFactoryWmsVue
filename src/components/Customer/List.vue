@@ -7,15 +7,16 @@
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="CustomerType" label="客户类型"></el-table-column>
+            <el-table-column prop="CustomerNo" label="客户编号"></el-table-column>
             <el-table-column prop="CustomerName" label="客户名称"></el-table-column>
+            <el-table-column prop="Tel" label="电话"></el-table-column>
+            <el-table-column prop="Email" label="邮箱"></el-table-column>
+            <el-table-column prop="CustomerPerson" label="联系人"></el-table-column>
+            <el-table-column prop="CustomerLevel" label="等级"></el-table-column>
+            <el-table-column prop="Address" label="地址"></el-table-column>
+            <el-table-column prop="Remark" label="备注"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
-            <el-table-column prop="IsDel" label="是否禁用">
-                <template slot-scope="scope">
-                    {{ scope.row.IsDel === 0 ? '是' : '否' }}
-                </template>
-            </el-table-column>
             <!-- 添加更多列，根据需要定义 -->
         </el-table>
         <el-pagination @current-change="handlePageChange" :current-page="currentPage" :page-size="pageSize"

@@ -21,7 +21,7 @@
         <el-button type="primary" @click="handleSearch()">搜索</el-button>
       </el-col>
       <el-col :span="2" :offset="4">
-        <el-button type="primary" @click="handleAdd()">新增承运商</el-button>
+        <el-button type="primary" @click="handleAdd()">新增</el-button>
       </el-col>
     </el-row>
   </div>

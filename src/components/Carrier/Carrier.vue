@@ -3,7 +3,7 @@
     <Search @search="handleSearch" @addCarrier="showAddCarrierDialog" />
     <CarrierList :rows="CarrierList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCarrier="showEditCarrierDialog" @deleteCarrier="handleDeleteCarrier" @pageChange="handlePageChange" />
-    <AddEditCarrierDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Carrier="selectedCarrier"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Carrier="selectedCarrier"
       :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditCarrier"
       @cancel="cancelAddEditCarrier" />
   </div>
@@ -12,14 +12,14 @@
 <script>
 import Search from './Search';
 import CarrierList from './List';
-import AddEditCarrierDialog from './AddEditCarrierDialog';
+import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Carrier',
   components: {
     Search,
     CarrierList,
-    AddEditCarrierDialog
+    AddEditDialog
   },
 
   created() {
@@ -37,15 +37,39 @@ export default {
       menuIds: [],
       menuList: [],
       formFields: [
+      {
+          prop: 'CarrierNo',
+          label: '承运商编号',
+          type: 'input',
+        },
         {
           prop: 'CarrierName',
           label: '承运商名称',
           type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
+          type: 'input',
         },
         {
-          prop: 'CarrierType',
-          label: '承运商类型',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'CarrierPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'CarrierLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',

@@ -1,10 +1,19 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogStockout" :rules="rules" ref="StockoutForm">
+    <el-form :model="dialogStockOut" :rules="rules" ref="StockOutForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="Stockout[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Stockout[field.prop]">
-        </el-input>
+        <el-input v-if="field.type === 'input'" v-model="dialogStockOut[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
+          v-model="dialogStockOut[field.prop]">
+        </el-input><el-select v-if="field.type === 'select' && field.label === '出库单'"
+          v-model="dialogStockOut[field.prop]" placeholder="请选择出库单">
+          <el-option v-for="(key, value) in stockOutTypeList" :key="value" :label="key" :value="value"></el-option>
+
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '客户'" v-model="dialogStockOut[field.prop]"
+          placeholder="请选择客户">
+          <el-option v-for="(key, value) in customerList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -26,28 +35,29 @@ export default {
       type: String,
       default: ''
     },
-    Stockout: {
+    stockOut: {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
+    stockOutTypeList: {
+      type: Object,
+      default: () => ({})
     },
-    menuIds: {
-      type: Array,
-      default: () => []
+    customerList: {
+      type: Object,
+      default: () => ({})
     },
+
   },
   computed: {
   },
   data() {
     return {
       rules: {
-        StockoutName: [
+        StockOutName: [
           { required: true, message: '请输入出库名称', trigger: 'blur' }
         ],
-        StockoutType: [
+        StockOutType: [
           { required: true, message: '请输入出库类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
@@ -56,8 +66,9 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogStockout: Object,
-      dialogMenuList: this.menuList,
+      dialogStockOut: Object,
+      dialogStockOutTypeList: this.stockOutTypeList,
+      dialogCustomerList: this.customerList,
       formFields: [
         {
           prop: 'StockOutId',
@@ -70,7 +81,7 @@ export default {
           type: 'input',
         },
         {
-          prop: 'StockOutNo',
+          prop: 'StockOutType',
           label: '出库单',
           type: 'select',
         },
@@ -86,7 +97,7 @@ export default {
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
+
     }
   },
   watch: {
@@ -96,61 +107,33 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    Stockout(newValue) {
-      this.dialogStockout = newValue;
+    stockOut(newValue) {
+      this.dialogStockOut = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
+    stockOutTypeList(newValue) {
+      this.dialogStockOutTypeList = newValue;
     },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
+    customerList(newValue) {
+      this.dialogCustomerList = newValue;
     },
+
   },
   created() {
-    this.dialogStockout = this.Stockout;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
-
+    this.dialogStockOut = this.stockOut;
+    this.dialogStockOutTypeList = this.stockOutTypeList;
+    this.dialogCustomerList = this.customerList;
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
-    handleParentChange(menu) {
-      if (this.menuIds.includes(menu.MenuId)) {
-        menu.Children.forEach(child => {
-          if (!this.menuIds.includes(child.MenuId)) {
-            this.dialogMenuIds.push(child.MenuId);
-          }
-        });
-      } else {
-        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
-        menu.expanded = false;
-        menu.Children.forEach(child => {
-          const index = this.menuIds.indexOf(child.MenuId);
-          if (index !== -1) {
-            this.dialogMenuIds.splice(index, 1);
-          }
-        });
-      }
-    },
     confirmAction() {
       // 确认添加或编辑出库的逻辑
-      this.$refs.StockoutForm.validate(valid => {
+      this.$refs.StockOutForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogStockout, this.menuIds);
-          console.log('数据发出');
-          console.log(this.dialogStockout);
-          console.log(this.menuIds);
+          this.$emit('confirmAction', this.dialogStockOut, this.menuIds);
+
+
+
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -160,11 +143,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogStockout = null;
-      this.dialogMenuIds = [];
-      this.menuList.forEach(menu => {
-        menu.expanded = false;
-      });
+      this.dialogStockOut = null;
 
       this.$emit('update:visible', false);
     }

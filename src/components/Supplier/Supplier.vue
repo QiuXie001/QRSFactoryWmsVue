@@ -3,7 +3,7 @@
     <Search @search="handleSearch" @addSupplier="showAddSupplierDialog" />
     <SupplierList :rows="SupplierList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editSupplier="showEditSupplierDialog" @deleteSupplier="handleDeleteSupplier" @pageChange="handlePageChange" />
-    <AddEditSupplierDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Supplier="selectedSupplier"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Supplier="selectedSupplier"
       :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditSupplier"
       @cancel="cancelAddEditSupplier" />
   </div>
@@ -12,14 +12,14 @@
 <script>
 import Search from './Search';
 import SupplierList from './List';
-import AddEditSupplierDialog from './AddEditSupplierDialog';
+import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Supplier',
   components: {
     Search,
     SupplierList,
-    AddEditSupplierDialog
+    AddEditDialog
   },
 
   created() {
@@ -37,15 +37,39 @@ export default {
       menuIds: [],
       menuList: [],
       formFields: [
+      {
+          prop: 'SupplierNo',
+          label: '供应商编号',
+          type: 'input',
+        },
         {
           prop: 'SupplierName',
           label: '供应商名称',
           type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
+          type: 'input',
         },
         {
-          prop: 'SupplierType',
-          label: '供应商类型',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'SupplierPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'SupplierLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',

@@ -44,7 +44,7 @@ export default {
     },
     handleAdd() {
       // 新增入库逻辑
-      this.$emit('addStockin');
+      this.$emit('addStockIn');
     }
   }
 }

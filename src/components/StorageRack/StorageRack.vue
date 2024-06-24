@@ -1,10 +1,10 @@
 <template>
   <div>
     <Search @search="handleSearch" @addStorageRack="showAddStorageRackDialog" />
-    <StorageRackList :rows="StorageRackList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
+    <StorageRackList :rows="storageRackList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editStorageRack="showEditStorageRackDialog" @deleteStorageRack="handleDeleteStorageRack" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :StorageRack="selectedStorageRack"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditStorageRack"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :storageRack="selectedStorageRack"
+      :formFields="formFields" :reservoirAreaList="reservoirAreaList" :warehouseList="warehouseList"  @confirmAction="confirmAddEditStorageRack"
       @cancel="cancelAddEditStorageRack" />
   </div>
 </template>
@@ -27,15 +27,15 @@ export default {
   },
   data() {
     return {
-      StorageRackList: [],
+      storageRackList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedStorageRack: {},
-      menuIds: [],
-      menuList: [],
+      reservoirAreaList:{},
+      warehouseList: {},
       formFields: [
         {
           prop: 'StorageRackNo',
@@ -85,12 +85,58 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + 'StorageRack/GetStoragerack', UserFormData)
+      this.$axios.post(this.$httpUrl + '/StorageRack/GetStorageRackList', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.StorageRackList = data.rows; // 假设data.rows是你的货架列表
             this.total = data.total; // 更新总记录数
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+      const WarehouseFormData = new FormData();
+      WarehouseFormData.append("token", this.$store.state.token);
+      WarehouseFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Warehouse/GetWarehouseList', WarehouseFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.warehouseList = data; // 假设data.rows是你的货架列表
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+        const ReservoirAreaFormData = new FormData();
+      ReservoirAreaFormData.append("token", this.$store.state.token);
+      ReservoirAreaFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirareaList', ReservoirAreaFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.reservoirAreaList = data; // 假设data.rows是你的货架列表
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -141,7 +187,7 @@ export default {
       this.selectedStorageRack = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditStorageRack(StorageRackData, menuIds) {
+    confirmAddEditStorageRack(StorageRackData) {
       if (this.dialogTitle === '新增货架') {
         const StorageRackDto = {
           StorageRackType: StorageRackData.StorageRackType,
@@ -152,7 +198,6 @@ export default {
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("StorageRack", JSON.stringify(StorageRackDto));
-        UserFormData.append("menuId", menuIds);
         this.$axios.post(this.$httpUrl + '/StorageRack/InsertStorageRack', UserFormData)
           .then(response => {
             const data = response.data;
@@ -186,7 +231,6 @@ export default {
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("StorageRack", JSON.stringify(StorageRackDto));
-        UserFormData.append("menuId", menuIds);
         this.$axios.post(this.$httpUrl + '/StorageRack/UpdateStorageRack', UserFormData)
           .then(response => {
             const data = response.data;
@@ -217,43 +261,10 @@ export default {
     showEditStorageRackDialog(StorageRack) {
       // 显示编辑货架对话框的逻辑
       this.dialogTitle = '编辑货架';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("StorageRackId", StorageRack.StorageRackId);
-      this.$axios.post(this.$httpUrl + '/StorageRack/GetMenuByStorageRackId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedStorageRack = StorageRack;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      this.addEditDialogVisible = true;
+      this.selectedStorageRack = StorageRack;
     },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
+    
     cancelAddEditStorageRack() {
       // 取消添加或编辑货架的逻辑
       this.dialogVisible = false;

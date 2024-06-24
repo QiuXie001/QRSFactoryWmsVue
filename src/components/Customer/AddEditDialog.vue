@@ -5,21 +5,7 @@
         <el-input v-if="field.type === 'input'" v-model="Customer[field.prop]"></el-input>
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Customer[field.prop]">
         </el-input>
-      </el-form-item>
-      <el-form-item label="菜单权限" prop="dialogMenuIds">
-        <div class="rounded-checkbox-group">
-          <el-checkbox-group v-model="dialogMenuIds">
-            <el-checkbox v-for="menu in menuList" :label="menu.MenuId" :key="menu.MenuId"
-              @change="toggleChildren(menu), handleParentChange(menu)">
-              {{ menu.MenuName }}
-              <div class="children" v-if="menu.expanded && menu.Children && menu.Children.length > 0">
-                <el-checkbox v-for="child in menu.Children" :label="child.MenuId" :key="child.MenuId">
-                  {{ child.MenuName }}
-                </el-checkbox>
-              </div>
-            </el-checkbox>
-          </el-checkbox-group>
-        </div>
+       
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -31,7 +17,7 @@
 
 <script>
 export default {
-  name: 'AddEditCustomerDialog',
+  name: 'AddEditDialog',
   props: {
     visible: {
       type: Boolean,
@@ -74,20 +60,44 @@ export default {
       dialogCustomer: Object,
       dialogMenuList: this.menuList,
       formFields: [
+      {
+          prop: 'CustomerNo',
+          label: '客户编号',
+          type: 'input',
+        },
         {
           prop: 'CustomerName',
           label: '客户名称',
           type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
+          type: 'input',
         },
         {
-          prop: 'CustomerType',
-          label: '客户类型',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'CustomerPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'CustomerLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',
           label: '备注',
-          type: 'textarea',
+          type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
       ],

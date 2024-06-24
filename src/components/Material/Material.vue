@@ -3,8 +3,8 @@
     <Search @search="handleSearch" @addMaterial="showAddMaterialDialog" />
     <MaterialList :rows="MaterialList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editMaterial="showEditMaterialDialog" @deleteMaterial="handleDeleteMaterial" @pageChange="handlePageChange" />
-    <AddEditMaterialDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Material="selectedMaterial"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditMaterial"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Material="selectedMaterial"
+      :formFields="formFields" :warehouseList="warehouseList" :reservoirAreaList="reservoirAreaList" :storagerackList="storagerackList" @confirmAction="confirmAddEditMaterial"
       @cancel="cancelAddEditMaterial" />
   </div>
 </template>
@@ -12,14 +12,14 @@
 <script>
 import Search from './Search';
 import MaterialList from './List';
-import AddEditMaterialDialog from './AddEditMaterialDialog';
+import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Material',
   components: {
     Search,
     MaterialList,
-    AddEditMaterialDialog
+    AddEditDialog
   },
 
   created() {
@@ -34,8 +34,9 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedMaterial: {},
-      menuIds: [],
-      menuList: [],
+      storagerackList: {},
+      reservoirAreaList: {},
+      warehouseList: {},
       formFields: [
       {
           prop: 'MaterialNo',
@@ -106,6 +107,76 @@ export default {
           if (data) {
             this.MaterialList = data.rows; // 假设data.rows是你的物料列表
             this.total = data.total; // 更新总记录数
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+        const WarehouseFormData = new FormData();
+        WarehouseFormData.append("token", this.$store.state.token);
+        WarehouseFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Warehouse/GetWarehouseList', WarehouseFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.warehouseList = data; // 假设data.rows是你的物料列表
+      
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+        const ReservoirAreaFormData = new FormData();
+        ReservoirAreaFormData.append("token", this.$store.state.token);
+        ReservoirAreaFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirareaList', ReservoirAreaFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.reservoirAreaList = data; // 假设data.rows是你的物料列表
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+        const StorageRackFormData = new FormData();
+      StorageRackFormData.append("token", this.$store.state.token);
+      StorageRackFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/StorageRack/GetStorageRackList', StorageRackFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.storagerackList = data; // 假设data.rows是你的物料列表
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -235,17 +306,7 @@ export default {
       this.selectedMaterial = Material;
       this.addEditDialogVisible = true;
     },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
+
     cancelAddEditMaterial() {
       // 取消添加或编辑物料的逻辑
       this.dialogVisible = false;

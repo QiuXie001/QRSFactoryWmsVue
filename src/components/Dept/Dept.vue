@@ -4,7 +4,7 @@
     <List :rows="deptList" :currentPage="currentPage" :pageSize="pageSize" :total="total" @editDept="showEditDeptDialog"
       @deleteDept="handleDeleteDept" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :dept="selectedDept"
-      :parentDeptList="parentDeptList" :formFields="formFields" @confirmAction="confirmAddEditDept"
+      :deptTypeList="deptTypeList" :formFields="formFields" @confirmAction="confirmAddEditDept"
       @cancel="cancelAddEditDept" />
   </div>
 </template>
@@ -34,7 +34,7 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedDept: {},
-      parentDeptList: [],
+      deptTypeList: [],
       formFields: [
         {
           prop: 'DeptId',

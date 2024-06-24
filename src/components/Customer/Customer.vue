@@ -3,7 +3,7 @@
     <Search @search="handleSearch" @addCustomer="showAddCustomerDialog" />
     <CustomerList :rows="CustomerList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCustomer="showEditCustomerDialog" @deleteCustomer="handleDeleteCustomer" @pageChange="handlePageChange" />
-    <AddEditCustomerDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Customer="selectedCustomer"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Customer="selectedCustomer"
       :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditCustomer"
       @cancel="cancelAddEditCustomer" />
   </div>
@@ -12,14 +12,14 @@
 <script>
 import Search from './Search';
 import CustomerList from './List';
-import AddEditCustomerDialog from './AddEditCustomerDialog';
+import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Customer',
   components: {
     Search,
     CustomerList,
-    AddEditCustomerDialog
+    AddEditDialog
   },
 
   created() {
@@ -37,15 +37,39 @@ export default {
       menuIds: [],
       menuList: [],
       formFields: [
+      {
+          prop: 'CustomerNo',
+          label: '客户编号',
+          type: 'input',
+        },
         {
           prop: 'CustomerName',
           label: '客户名称',
           type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
+          type: 'input',
         },
         {
-          prop: 'CustomerType',
-          label: '客户类型',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'CustomerPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'CustomerLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',

@@ -1,21 +1,27 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogStorageRack" :rules="rules" ref="StorageRackForm">
+    <el-form :model="dialogMaterial" :rules="rules" ref="MaterialForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="dialogStorageRack[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="storageRack[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="dialogMaterial[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogMaterial[field.prop]">
         </el-input>
-        <el-select v-if="field.type === 'select'&& field.label==='所属仓库'" v-model="dialogStorageRack[field.prop]" placeholder="请选择仓库">
+        <el-select v-if="field.type === 'select'&& field.label==='所属仓库'" v-model="dialogMaterial[field.prop]" placeholder="请选择仓库">
           <el-option v-for="(key,value) in warehouseList" :key="value" :label="key"
           :value="value"></el-option>
               
             </el-select>
-            <el-select v-if="field.type === 'select'&& field.label==='所属库区'" v-model="dialogStorageRack[field.prop]" placeholder="请选择库区">
+            <el-select v-if="field.type === 'select'&& field.label==='所属库区'" v-model="dialogMaterial[field.prop]" placeholder="请选择库区">
           <el-option v-for="(key,value) in reservoirAreaList" :key="value" :label="key"
           :value="value"></el-option>
               
             </el-select>
+            <el-select v-if="field.type === 'select'&& field.label==='所属货架'" v-model="dialogMaterial[field.prop]" placeholder="请选择货架">
+          <el-option v-for="(key,value) in storagerackList" :key="value" :label="key"
+          :value="value"></el-option>
+              
+            </el-select>
       </el-form-item>
+      
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -25,6 +31,8 @@
 </template>
 
 <script>
+import { Object } from 'core-js';
+
 export default {
   name: 'AddEditDialog',
   props: {
@@ -36,7 +44,7 @@ export default {
       type: String,
       default: ''
     },
-    storageRack: {
+    Material: {
       type: Object,
       default: () => ({})
     },
@@ -47,16 +55,23 @@ export default {
     reservoirAreaList: {
       type: Object,
       default: () => ({})
+    }, 
+    storagerackList: {
+      type: Object,
+      default: () => ({})
     },
-   
+  
   },
   computed: {
   },
   data() {
     return {
       rules: {
-        StorageRackName: [
-          { required: true, message: '请输入货架名称', trigger: 'blur' }
+        MaterialName: [
+          { required: true, message: '请输入物料名称', trigger: 'blur' }
+        ],
+        MaterialType: [
+          { required: true, message: '请输入物料类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -64,29 +79,45 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogStorageRack: Object,
-      dialogReservoirAreaList: this.reservoirAreaList,
-      dialogWarehouseList: this.warehouseList,
+      dialogMaterial: Object,
+      dialogWarehouseList:Object,
+      dialogReservoirAreaList:Object,
+      dialogStoragerackList:Object,
       formFields: [
-        {
-          prop: 'StorageRackNo',
-          label: '货架编号',
+      {
+          prop: 'MaterialNo',
+          label: '物料编号',
           type: 'input',
         },
         {
-          prop: 'StorageRackName',
-          label: '货架名称',
+          prop: 'MaterialName',
+          label: '物料名称',
           type: 'input',
         },
         {
+          prop: 'MaterialType',
+          label: '物料类型',
+          type: 'input',
+        }, {
+          prop: 'UnitType',
+          label: '单位',
+          type: 'input',
+        }, {
           prop: 'WarehouseId',
           label: '所属仓库',
           type: 'select',
-        },
-        {
+        }, {
           prop: 'ReservoirAreaId',
           label: '所属库区',
           type: 'select',
+        }, {
+          prop: 'StoragerackId',
+          label: '所属货架',
+          type: 'select',
+        },{
+          prop: 'ExpiryDate',
+          label: '有效期',
+          type: 'input',
         },
         {
           prop: 'Remark',
@@ -95,7 +126,7 @@ export default {
           rows: 3,
         },
       ],
-      
+     
     }
   },
   watch: {
@@ -105,8 +136,8 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    storageRack(newValue) {
-      this.dialogStorageRack = newValue;
+    Material(newValue) {
+      this.dialogMaterial = newValue;
     },
     warehouseList(newValue) {
       this.dialogWarehouseList = newValue;
@@ -114,26 +145,29 @@ export default {
     reservoirAreaList(newValue) {
       this.dialogReservoirAreaList = newValue;
     },
+    storagerackList(newValue) {
+      this.dialogStoragerackList = newValue;
+    },
+   
    
   },
   created() {
-    this.dialogStorageRack = this.storageRack;
-    this.dialogWarehouseList = this.warehouseList;
+    this.dialogMaterial = this.Material;
+    this.dialogWarehouseList =this.warehouseList;
     this.dialogReservoirAreaList = this.reservoirAreaList;
+    this.dialogStoragerackList = this.storagerackList;
 
   },
   mounted() {
   },
   methods: {
-    
     confirmAction() {
-      // 确认添加或编辑货架的逻辑
-      this.$refs.StorageRackForm.validate(valid => {
+      // 确认添加或编辑物料的逻辑
+      this.$refs.MaterialForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogStorageRack, this.menuIds);
+          this.$emit('confirmAction', this.dialogMaterial);
           console.log('数据发出');
-          console.log(this.dialogStorageRack);
-          console.log(this.menuIds);
+          console.log(this.dialogMaterial);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -143,7 +177,8 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogStorageRack = {};
+      this.dialogMaterial = null;
+     
 
       this.$emit('update:visible', false);
     }

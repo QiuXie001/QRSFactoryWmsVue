@@ -2,9 +2,13 @@
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
     <el-form :model="dialogReservoirArea" :rules="rules" ref="ReservoirAreaForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="ReservoirArea[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="ReservoirArea[field.prop]">
-        </el-input>
+        <el-input v-if="field.type === 'input'" v-model="dialogReservoirArea[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogReservoirArea[field.prop]">  </el-input>
+        <el-select v-if="field.type === 'select'" v-model="dialogReservoirArea[field.prop]" placeholder="请选择仓库">
+          <el-option v-for="(key,value) in warehouseList" :key="value" :label="key"
+          :value="value"></el-option>
+              
+            </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -30,14 +34,11 @@ export default {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
+    warehouseList: {
+      type: Object,
+      default: () => ({})
     },
-    menuIds: {
-      type: Array,
-      default: () => []
-    },
+
   },
   computed: {
   },
@@ -57,7 +58,7 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogReservoirArea: Object,
-      dialogMenuList: this.menuList,
+      dialogWarehouseList: this.warehouseList,
       formFields: [
         {
           prop: 'ReservoirAreaNo',
@@ -94,50 +95,21 @@ export default {
     ReservoirArea(newValue) {
       this.dialogReservoirArea = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
+    warehouseList(newValue) {
+      this.dialogWarehouseList = newValue;
     },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
-    },
+    
   },
   created() {
     this.dialogReservoirArea = this.ReservoirArea;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
+    this.dialogWarehouseList = this.warehouseList;
+ 
 
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
-    handleParentChange(menu) {
-      if (this.menuIds.includes(menu.MenuId)) {
-        menu.Children.forEach(child => {
-          if (!this.menuIds.includes(child.MenuId)) {
-            this.dialogMenuIds.push(child.MenuId);
-          }
-        });
-      } else {
-        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
-        menu.expanded = false;
-        menu.Children.forEach(child => {
-          const index = this.menuIds.indexOf(child.MenuId);
-          if (index !== -1) {
-            this.dialogMenuIds.splice(index, 1);
-          }
-        });
-      }
-    },
+   
     confirmAction() {
       // 确认添加或编辑角色的逻辑
       this.$refs.ReservoirAreaForm.validate(valid => {
@@ -155,12 +127,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogReservoirArea = null;
-      this.dialogMenuIds = [];
-      this.menuList.forEach(menu => {
-        menu.expanded = false;
-      });
-
+      this.dialogReservoirArea = {};
       this.$emit('update:visible', false);
     }
   }

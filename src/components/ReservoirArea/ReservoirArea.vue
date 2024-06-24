@@ -4,7 +4,7 @@
     <ReservoirAreaList :rows="ReservoirAreaList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editReservoirArea="showEditReservoirAreaDialog" @deleteReservoirArea="handleDeleteReservoirArea" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :ReservoirArea="selectedReservoirArea"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditReservoirArea"
+      :formFields="formFields" :warehouseList="warehouseList"  @confirmAction="confirmAddEditReservoirArea"
       @cancel="cancelAddEditReservoirArea" />
   </div>
 </template>
@@ -34,8 +34,7 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedReservoirArea: {},
-      menuIds: [],
-      menuList: [],
+      warehouseList: {},
       formFields: [
         {
           prop: 'ReservoirAreaNo',
@@ -80,7 +79,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/ReservoirArea/GetPageList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/ReservoirArea/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
@@ -101,14 +100,14 @@ export default {
           });
         });
 
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
+      const warehouseFormData = new FormData();
+      warehouseFormData.append("token", this.$store.state.token);
+      warehouseFormData.append("userId", this.$store.state.user.UserId);
+      this.$axios.post(this.$httpUrl + '/Warehouse/GetWarehouseList', warehouseFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.menuList = data.rows;
+            this.warehouseList = data;
           } else {
             this.$message({
               type: 'error',

@@ -1,16 +1,11 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
-    <el-form :model="dialogMaterial" :rules="rules" ref="MaterialForm">
+    <el-form :model="dialogCarrier" :rules="rules" ref="CarrierForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="Material[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Material[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="Carrier[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Carrier[field.prop]">
         </el-input>
-        <el-select v-if="field.type === 'select'" v-model="dialogMaterial[field.prop]" placeholder="请选择">
-          
-       
-        </el-select>
       </el-form-item>
-      
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -21,7 +16,7 @@
 
 <script>
 export default {
-  name: 'AddEditMaterialDialog',
+  name: 'AddEditDialog',
   props: {
     visible: {
       type: Boolean,
@@ -31,22 +26,29 @@ export default {
       type: String,
       default: ''
     },
-    Material: {
+    Carrier: {
       type: Object,
       default: () => ({})
     },
-  
+    menuList: {
+      type: Array,
+      default: () => []
+    },
+    menuIds: {
+      type: Array,
+      default: () => []
+    },
   },
   computed: {
   },
   data() {
     return {
       rules: {
-        MaterialName: [
-          { required: true, message: '请输入物料名称', trigger: 'blur' }
+        CarrierName: [
+          { required: true, message: '请输入承运商名称', trigger: 'blur' }
         ],
-        MaterialType: [
-          { required: true, message: '请输入物料类型', trigger: 'blur' }
+        CarrierType: [
+          { required: true, message: '请输入承运商类型', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -54,42 +56,42 @@ export default {
       },
       dialogVisible: this.visible,
       dialogTitle: this.title,
-      dialogMaterial: Object,
+      dialogCarrier: Object,
+      dialogMenuList: this.menuList,
       formFields: [
       {
-          prop: 'MaterialNo',
-          label: '物料编号',
+          prop: 'CarrierNo',
+          label: '承运商编号',
           type: 'input',
         },
         {
-          prop: 'MaterialName',
-          label: '物料名称',
+          prop: 'CarrierName',
+          label: '承运商名称',
+          type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
           type: 'input',
         },
         {
-          prop: 'MaterialType',
-          label: '物料类型',
-          type: 'select',
-        }, {
-          prop: 'UnitType',
-          label: '单位',
-          type: 'select',
-        }, {
-          prop: 'WarehouseId',
-          label: '所属仓库',
-          type: 'select',
-        }, {
-          prop: 'ReservoirAreaId',
-          label: '所属库区',
-          type: 'select',
-        }, {
-          prop: 'StoragerackId',
-          label: '所属货架',
-          type: 'select',
-        },{
-          prop: 'ExpiryDate',
-          label: '有效期',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'CarrierPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'CarrierLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',
@@ -98,7 +100,7 @@ export default {
           rows: 3,
         },
       ],
-     
+      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -108,21 +110,35 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    Material(newValue) {
-      this.dialogMaterial = newValue;
+    Carrier(newValue) {
+      this.dialogCarrier = newValue;
     },
-   
-   
+    menuList(newValue) {
+      this.dialogMenuList = newValue;
+    },
+    menuIds(newValue) {
+      this.dialogMenuIds = newValue;
+      this.dialogMenuList.forEach(menu => {
+        if (this.dialogMenuIds.includes(menu.MenuId)) {
+          menu.expanded = true;
+        } else {
+          menu.expanded = false;
+        }
+      });
+    },
   },
   created() {
-    this.dialogMaterial = this.Material;
-    
+    this.dialogCarrier = this.Carrier;
+    this.dialogMenuList = this.menuList;
+    this.dialogMenuIds = this.menuIds;
 
   },
   mounted() {
   },
   methods: {
-   
+    toggleChildren(menu) {
+      menu.expanded = !menu.expanded;
+    },
     handleParentChange(menu) {
       if (this.menuIds.includes(menu.MenuId)) {
         menu.Children.forEach(child => {
@@ -142,12 +158,12 @@ export default {
       }
     },
     confirmAction() {
-      // 确认添加或编辑物料的逻辑
-      this.$refs.MaterialForm.validate(valid => {
+      // 确认添加或编辑承运商的逻辑
+      this.$refs.CarrierForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogMaterial, this.menuIds);
+          this.$emit('confirmAction', this.dialogCarrier, this.menuIds);
           console.log('数据发出');
-          console.log(this.dialogMaterial);
+          console.log(this.dialogCarrier);
           console.log(this.menuIds);
           this.cancelDialog();
         } else {
@@ -158,7 +174,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogMaterial = null;
+      this.dialogCarrier = null;
       this.dialogMenuIds = [];
       this.menuList.forEach(menu => {
         menu.expanded = false;

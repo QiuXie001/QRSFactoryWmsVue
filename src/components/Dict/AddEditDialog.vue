@@ -5,18 +5,19 @@
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogDict[field.prop]" :style="getInputStyle(field)">
+            <el-input v-if="field.type === 'input'" v-model="dialogDict[field.prop]">
               <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
             </el-input>
-
+            <el-select v-if="field.type === 'select'" v-model="dialogDict[field.prop]" placeholder="请选择字典">
+          <el-option v-for="(key,value) in dictTypeList" :key="value" :label="key"
+          :value="value"></el-option>
+              
+            </el-select>
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
               v-model="dialogDict[field.prop]"></el-input>
             <el-input-number v-if="field.type === 'number'" v-model="dialogDict[field.prop]" :min="1"
               :default-value="field.defaultValue"></el-input-number>
-              <el-select v-if="field.type === 'select'" v-model="dialogDict[field.prop]" placeholder="请选择">
-          
-       
-        </el-select>
+             
           </el-form-item>
         </el-col>
       </el-row>
@@ -41,12 +42,12 @@ export default {
       type: String,
       default: ''
     },
-    Dict: {
+    dict: {
       type: Object,
       default: () => ({})
     },
-    parentDictList: {
-      type: Array,
+    dictTypeList: {
+      type: Object,
       default: () => []
     },
   },
@@ -68,7 +69,7 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogDict: Object,
-      dialogParentDictList: this.parentDictList,
+      dialogDictTypeList: this.DictList,
       formFields: [
       {
           prop: 'DictType',
@@ -95,48 +96,29 @@ export default {
     title(newValue) {
       this.dialogTitle = newValue;
     },
-    Dict(newValue) {
+    dict(newValue) {
       this.dialogDict = newValue;
     },
-    parentDictList(newValue) {
-      this.dialogParentDictList = newValue;
+    dictTypeList(newValue) {
+      this.dialogDictList = newValue;
     },
 
   },
   created() {
-    this.dialogDict = this.Dict;
-    this.dialogParentDictList = this.parentDictList;
+    this.dialogDict = this.dict;
+    this.dialogDictTypeList = this.dictTypeList;
   },
   components: {
   },
   mounted() {
   },
   methods: {
-    getInputStyle(field) {
-      if (this.title !== '编辑菜单') {
-        switch (field.label) {
-          case '图标':
-            return {
-              'padding-left': '100px',
-              'width': '210px'
-            };
-          case '菜单路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
-
-          default:
-            return '';
-        }
-      }
-    },
+   
     confirmAction() {
       // 确认添加或编辑角色的逻辑
       this.$refs.DictForm.validate(valid => {
         if (valid) {
-          this.dialogDict.DictUrl = this.getInputPrefix('DictUrl') + this.dialogDict.DictUrl;
-          this.dialogDict.DictIcon = this.getInputPrefix('DictIcon') + this.dialogDict.DictIcon;
+         
 
           this.$emit('confirmAction', this.dialogDict);
 

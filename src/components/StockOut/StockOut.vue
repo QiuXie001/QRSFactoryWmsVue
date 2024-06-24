@@ -1,10 +1,10 @@
 <template>
   <div>
     <Search @search="handleSearch" @addStockout="showAddStockoutDialog" />
-    <StockoutList :rows="StockoutList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
+    <StockoutList :rows="stockOutList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editStockout="showEditStockoutDialog" @deleteStockout="handleDeleteStockout" @pageChange="handlePageChange" />
-    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Stockout="selectedStockout"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditStockout"
+    <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :stockOut="selectedStockout"
+      :formFields="formFields" :stockOutTypeList="stockOutTypeList" :customerList="customerList" @confirmAction="confirmAddEditStockout"
       @cancel="cancelAddEditStockout" />
   </div>
 </template>
@@ -27,15 +27,17 @@ export default {
   },
   data() {
     return {
-      StockoutList: [],
+      stockOutList: [],
       currentPage: 1,
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedStockout: {},
-      menuIds: [],
-      menuList: [],
+      stockOutTypeList: {
+        "1":"成品出庫單",
+      },
+      customerList:{},
       formFields: [
         {
           prop: 'StockOutId',
@@ -73,24 +75,50 @@ export default {
         _: Date.now(), // 时间戳或随机数
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
-        keyword: null // 额外的搜索关键词
+        keyword: null, // 额外的搜索关键词
+        StockOutType : null,
+        StockOutStatus:null
       },
     }
   },
   methods: {
     init() {
       const UserFormData = new FormData();
-      this.parmas.offset = (this.currentPage - 1) * this.pageSize;
+     this.parmas.offset = (this.currentPage - 1) * this.pageSize;
       UserFormData.append("bootstrap", JSON.stringify(this.parmas));
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/StockOut/ListDetail', UserFormData)
+      this.$axios.post(this.$httpUrl + '/StockOut/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.StockoutList = data.rows; // 假设data.rows是你的出库列表
+            this.stockOutList = data.rows; // 假设data.rows是你的出库列表
             this.total = data.total; // 更新总记录数
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+        
+      const CustomerFormData = new FormData();
+      CustomerFormData.append("token", this.$store.state.token);
+      CustomerFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Customer/GetCustomerList', CustomerFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.customerList = data; // 假设data.rows是你的出库列表
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -141,7 +169,7 @@ export default {
       this.selectedStockout = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditStockout(StockoutData, menuIds) {
+    confirmAddEditStockout(StockoutData) {
       if (this.dialogTitle === '新增出库') {
         const StockoutDto = {
           StockoutType: StockoutData.StockoutType,
@@ -152,7 +180,6 @@ export default {
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("Stockout", JSON.stringify(StockoutDto));
-        UserFormData.append("menuId", menuIds);
         this.$axios.post(this.$httpUrl + '/StockOut/InsertStockout', UserFormData)
           .then(response => {
             const data = response.data;
@@ -186,7 +213,6 @@ export default {
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("Stockout", JSON.stringify(StockoutDto));
-        UserFormData.append("menuId", menuIds);
         this.$axios.post(this.$httpUrl + '/StockOut/UpdateStockout', UserFormData)
           .then(response => {
             const data = response.data;
@@ -243,17 +269,7 @@ export default {
           });
         });
     },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
-    },
+   
     cancelAddEditStockout() {
       // 取消添加或编辑出库的逻辑
       this.dialogVisible = false;

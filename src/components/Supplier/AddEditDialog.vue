@@ -6,21 +6,7 @@
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Supplier[field.prop]">
         </el-input>
       </el-form-item>
-      <el-form-item label="菜单权限" prop="dialogMenuIds">
-        <div class="rounded-checkbox-group">
-          <el-checkbox-group v-model="dialogMenuIds">
-            <el-checkbox v-for="menu in menuList" :label="menu.MenuId" :key="menu.MenuId"
-              @change="toggleChildren(menu), handleParentChange(menu)">
-              {{ menu.MenuName }}
-              <div class="children" v-if="menu.expanded && menu.Children && menu.Children.length > 0">
-                <el-checkbox v-for="child in menu.Children" :label="child.MenuId" :key="child.MenuId">
-                  {{ child.MenuName }}
-                </el-checkbox>
-              </div>
-            </el-checkbox>
-          </el-checkbox-group>
-        </div>
-      </el-form-item>
+      
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -31,7 +17,7 @@
 
 <script>
 export default {
-  name: 'AddEditSupplierDialog',
+  name: 'AddEditDialog',
   props: {
     visible: {
       type: Boolean,
@@ -74,20 +60,44 @@ export default {
       dialogSupplier: Object,
       dialogMenuList: this.menuList,
       formFields: [
+      {
+          prop: 'SupplierNo',
+          label: '供应商编号',
+          type: 'input',
+        },
         {
           prop: 'SupplierName',
           label: '供应商名称',
           type: 'input',
+        },  {
+          prop: 'Address',
+          label: '地址',
+          type: 'input',
         },
         {
-          prop: 'SupplierType',
-          label: '供应商类型',
+          prop: 'Tel',
+          label: '电话',
           type: 'input',
+        },
+        {
+          prop: 'SupplierPerson',
+          label: '联系人',
+          type: 'input',
+        },
+        {
+          prop: 'Email',
+          label: '邮箱',
+          type: 'input',
+        },
+        {
+          prop: 'SupplierLevel',
+          label: '级别',
+          type: 'select',
         },
         {
           prop: 'Remark',
           label: '备注',
-          type: 'textarea',
+          type: 'textarea', // 假设这是一个文本域
           rows: 3,
         },
       ],

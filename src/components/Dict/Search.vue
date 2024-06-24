@@ -5,7 +5,7 @@
         <el-form :model="searchForm" ref="searchForm">
           <el-col :span="8">
             <el-form-item prop="deptName">
-              <el-input v-model="searchForm.deptName" placeholder="请输入部门名称"></el-input>
+              <el-input v-model="searchForm.deptName" placeholder="请输入名称"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="6" :offset="2">
@@ -21,7 +21,7 @@
         <el-button type="primary" @click="handleSearch()">搜索</el-button>
       </el-col>
       <el-col :span="2" :offset="4">
-        <el-button type="primary" @click="handleAdd()">新增部门</el-button>
+        <el-button type="primary" @click="handleAdd()">新增字典</el-button>
       </el-col>
     </el-row>
   </div>
