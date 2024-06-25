@@ -4,8 +4,7 @@
     <CustomerList :rows="CustomerList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCustomer="showEditCustomerDialog" @deleteCustomer="handleDeleteCustomer" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Customer="selectedCustomer"
-      :formFields="formFields" @confirmAction="confirmAddEditCustomer"
-      @cancel="cancelAddEditCustomer" />
+      :formFields="formFields" @confirmAction="confirmAddEditCustomer" @cancel="cancelAddEditCustomer" />
   </div>
 </template>
 
@@ -35,7 +34,7 @@ export default {
       dialogTitle: '',
       selectedCustomer: {},
       formFields: [
-      {
+        {
           prop: 'CustomerNo',
           label: '客户编号',
           type: 'input',
@@ -44,7 +43,7 @@ export default {
           prop: 'CustomerName',
           label: '客户名称',
           type: 'input',
-        },  {
+        }, {
           prop: 'Address',
           label: '地址',
           type: 'input',
@@ -153,21 +152,23 @@ export default {
       this.selectedCustomer = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditCustomer(CustomerData, menuIds) {
+    confirmAddEditCustomer(CustomerData) {
       if (this.dialogTitle === '新增客户') {
         const CustomerDto = {
-         CustomerPerson: CustomerData.CustomerPerson,
           CustomerName: CustomerData.CustomerName,
           CustomerLevel: CustomerData.CustomerLevel,
-          CustomerId: CustomerData.CustomerId,
+          CustomerNo: CustomerData.CustomerNo,
+          CustomerPerson: CustomerData.CustomerPerson,
+          Address: CustomerData.Address,
+          Tel: CustomerData.Tel,
+          Email: CustomerData.Email,
           Remark: CustomerData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Customer", JSON.stringify(CustomerDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Customer/InsertCustomer', UserFormData)
+        UserFormData.append("model", JSON.stringify(CustomerDto));
+        this.$axios.post(this.$httpUrl + '/Customer/Add', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -191,18 +192,20 @@ export default {
       }
       else if (this.dialogTitle === '编辑客户') {
         const CustomerDto = {
-          CustomerPerson: CustomerData.CustomerPerson,
+          CustomerId: CustomerData.CustomerId,
           CustomerName: CustomerData.CustomerName,
           CustomerLevel: CustomerData.CustomerLevel,
-          CustomerId: CustomerData.CustomerId,
+          CustomerNo: CustomerData.CustomerNo,
+          Address: CustomerData.Address,
+          Tel: CustomerData.Tel,
+          Email: CustomerData.Email,
           Remark: CustomerData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Customer", JSON.stringify(CustomerDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Customer/UpdateCustomer', UserFormData)
+        UserFormData.append("model", JSON.stringify(CustomerDto));
+        this.$axios.post(this.$httpUrl + '/Customer/Update', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -232,31 +235,8 @@ export default {
     showEditCustomerDialog(Customer) {
       // 显示编辑客户对话框的逻辑
       this.dialogTitle = '编辑客户';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("CustomerId", Customer.CustomerId);
-      this.$axios.post(this.$httpUrl + '/Customer/GetMenuByCustomerId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedCustomer = Customer;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      this.addEditDialogVisible = true;
+      this.selectedCustomer = Customer;
     },
     cancelAddEditCustomer() {
       // 取消添加或编辑客户的逻辑
@@ -270,7 +250,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
       UserFormData.append("Customer", JSON.stringify(CustomerDto));
-      this.$axios.post(this.$httpUrl + '/Customer/DeleteCustomer', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Customer/Delete', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {

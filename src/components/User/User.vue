@@ -204,6 +204,7 @@ export default {
       this.addEditDialogVisible = true;
     },
     confirmAddEditUser(userData) {
+      const UserFormData = new FormData();
       if (this.dialogTitle === '新增用户') {
         console.log(userData);
         const userDto = {
@@ -218,10 +219,10 @@ export default {
           Sort:1,
           Email:"default",
           Tel:"default",
+          Mobile:"default",
           LoginIp:"default",
           
         };
-        const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("user", JSON.stringify(userDto));
@@ -233,7 +234,6 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
-              console.log()
               this.init(); // 重新获取数据
             } else {
               this.$message({
@@ -251,6 +251,45 @@ export default {
       }
       else if (this.dialogTitle === '编辑用户') {
         //
+        const userDto = {
+          UserId: userData.UserId,
+          UserName: userData.UserName,
+          UserNickname:userData.UserNickname,
+          Pwd:userData.Pwd,
+          Sex:1,
+          DeptId:userData.DeptId,
+          RoleId:userData.RoleId,
+          Remark: userData.Remark,
+          Sort:1,
+          Email:"default",
+          Tel:"default",
+          LoginIp:"default",
+        };
+        UserFormData.append("token", this.$store.state.token);
+        UserFormData.append("userId", this.$store.state.user.UserId);
+        UserFormData.append("user", JSON.stringify(userDto));
+        this.$axios.post(this.$httpUrl + '/User/Update', UserFormData)
+          .then(response => {
+            const data = response.data;
+            if (data.Item1) {
+              this.$message({
+                type: 'success',
+                message: data.Item2
+              });
+              this.init(); // 重新获取数据
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
       }
 
       this.dialogVisible = false;

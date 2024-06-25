@@ -4,7 +4,8 @@
     <MaterialList :rows="MaterialList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editMaterial="showEditMaterialDialog" @deleteMaterial="handleDeleteMaterial" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Material="selectedMaterial"
-      :formFields="formFields" :warehouseList="warehouseList" :reservoirAreaList="reservoirAreaList" :storagerackList="storagerackList" @confirmAction="confirmAddEditMaterial"
+      :formFields="formFields" :materialTypeList="materialTypeList" :unitList="unitList" :warehouseList="warehouseList"
+      :reservoirAreaList="reservoirAreaList" :storagerackList="storagerackList" @confirmAction="confirmAddEditMaterial"
       @cancel="cancelAddEditMaterial" />
   </div>
 </template>
@@ -34,11 +35,13 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedMaterial: {},
+      materialTypeList: {},
+      unitList: {},
       storagerackList: {},
       reservoirAreaList: {},
       warehouseList: {},
       formFields: [
-      {
+        {
           prop: 'MaterialNo',
           label: '物料编号',
           type: 'input',
@@ -68,7 +71,7 @@ export default {
           prop: 'StoragerackId',
           label: '所属货架',
           type: 'select',
-        },{
+        }, {
           prop: 'ExpiryDate',
           label: '有效期',
           type: 'input',
@@ -106,7 +109,6 @@ export default {
           const data = response.data;
           if (data) {
             this.MaterialList = data.rows; // 假设data.rows是你的物料列表
-            this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -121,16 +123,66 @@ export default {
             message: error
           });
         });
-        const WarehouseFormData = new FormData();
-        WarehouseFormData.append("token", this.$store.state.token);
-        WarehouseFormData.append("userId", this.$store.state.user.UserId);
+      const UnitFormData = new FormData();
+      UnitFormData.append("token", this.$store.state.token);
+      UnitFormData.append("userId", this.$store.state.user.UserId);
+      UnitFormData.append("type", "1");
+      this.$axios.post(this.$httpUrl + '/Material/GetDictListByType', UnitFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.unitList = data; // 假设data.rows是你的物料列表
+
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
+      const MaterialTypeFormData = new FormData();
+      MaterialTypeFormData.append("token", this.$store.state.token);
+      MaterialTypeFormData.append("userId", this.$store.state.user.UserId);
+      MaterialTypeFormData.append("type", "2");
+      this.$axios.post(this.$httpUrl + '/Material/GetDictListByType', MaterialTypeFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.materialTypeList = data; // 假设data.rows是你的物料列表
+
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
+      const WarehouseFormData = new FormData();
+      WarehouseFormData.append("token", this.$store.state.token);
+      WarehouseFormData.append("userId", this.$store.state.user.UserId);
 
       this.$axios.post(this.$httpUrl + '/Warehouse/GetWarehouseList', WarehouseFormData)
         .then(response => {
           const data = response.data;
           if (data) {
             this.warehouseList = data; // 假设data.rows是你的物料列表
-      
+
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -145,9 +197,9 @@ export default {
             message: error
           });
         });
-        const ReservoirAreaFormData = new FormData();
-        ReservoirAreaFormData.append("token", this.$store.state.token);
-        ReservoirAreaFormData.append("userId", this.$store.state.user.UserId);
+      const ReservoirAreaFormData = new FormData();
+      ReservoirAreaFormData.append("token", this.$store.state.token);
+      ReservoirAreaFormData.append("userId", this.$store.state.user.UserId);
 
       this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirareaList', ReservoirAreaFormData)
         .then(response => {
@@ -168,7 +220,7 @@ export default {
             message: error
           });
         });
-        const StorageRackFormData = new FormData();
+      const StorageRackFormData = new FormData();
       StorageRackFormData.append("token", this.$store.state.token);
       StorageRackFormData.append("userId", this.$store.state.user.UserId);
 
@@ -232,15 +284,23 @@ export default {
     confirmAddEditMaterial(MaterialData) {
       if (this.dialogTitle === '新增物料') {
         const MaterialDto = {
-          MaterialType: MaterialData.MaterialType,
+          MaterialNo: MaterialData.MaterialNo,
           MaterialName: MaterialData.MaterialName,
+          MaterialTypeId: MaterialData.MaterialTypeId,
+          UnitId: MaterialData.UnitId,
+          WarehouseId: MaterialData.WarehouseId,
+          StoragerackId: MaterialData.StorageRackId,
+          ReservoirAreaId: MaterialData.ReservoirAreaId,
+          ExpiryDate: MaterialData.ExpiryDate,
           Remark: MaterialData.Remark,
+
+          Qty: 0,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Material", JSON.stringify(MaterialDto));
-        this.$axios.post(this.$httpUrl + '/Material/InsertMaterial', UserFormData)
+        UserFormData.append("model", JSON.stringify(MaterialDto));
+        this.$axios.post(this.$httpUrl + '/Material/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -248,6 +308,7 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
+              this.init();
             } else {
               this.$message({
                 type: 'error',
@@ -264,16 +325,23 @@ export default {
       }
       else if (this.dialogTitle === '编辑物料') {
         const MaterialDto = {
-          MaterialId: MaterialData.MaterialId,
-          MaterialType: MaterialData.MaterialType,
+          MaterialNo: MaterialData.MaterialNo,
           MaterialName: MaterialData.MaterialName,
-          Remark: MaterialData.Remark
+          MaterialTypeId: MaterialData.MaterialTypeId,
+          UnitId: MaterialData.UnitId,
+          WarehouseId: MaterialData.WarehouseId,
+          StoragerackId: MaterialData.StorageRackId,
+          ReservoirAreaId: MaterialData.ReservoirAreaId,
+          ExpiryDate: MaterialData.ExpiryDate,
+          Remark: MaterialData.Remark,
+
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Material", JSON.stringify(MaterialDto));
-        this.$axios.post(this.$httpUrl + '/Material/UpdateMaterial', UserFormData)
+        UserFormData.append("model", JSON.stringify(MaterialDto));
+        UserFormData.append("id", MaterialData.MaterialId);
+        this.$axios.post(this.$httpUrl + '/Material/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -281,6 +349,7 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
+              this.init();
             } else {
               this.$message({
                 type: 'error',

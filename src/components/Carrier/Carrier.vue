@@ -4,8 +4,7 @@
     <CarrierList :rows="CarrierList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editCarrier="showEditCarrierDialog" @deleteCarrier="handleDeleteCarrier" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Carrier="selectedCarrier"
-      :formFields="formFields" @confirmAction="confirmAddEditCarrier"
-      @cancel="cancelAddEditCarrier" />
+      :formFields="formFields" @confirmAction="confirmAddEditCarrier" @cancel="cancelAddEditCarrier" />
   </div>
 </template>
 
@@ -35,7 +34,7 @@ export default {
       dialogTitle: '',
       selectedCarrier: {},
       formFields: [
-      {
+        {
           prop: 'CarrierNo',
           label: '承运商编号',
           type: 'input',
@@ -44,7 +43,7 @@ export default {
           prop: 'CarrierName',
           label: '承运商名称',
           type: 'input',
-        },  {
+        }, {
           prop: 'Address',
           label: '地址',
           type: 'input',
@@ -117,28 +116,6 @@ export default {
             message: error
           });
         });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -175,22 +152,23 @@ export default {
       this.selectedCarrier = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditCarrier(CarrierData, menuIds) {
+    confirmAddEditCarrier(CarrierData) {
       if (this.dialogTitle === '新增承运商') {
         const CarrierDto = {
-          CarrierId : CarrierData.CarrierId,
+          CarrierNo: CarrierData.CarrierNo,
           CarrierName: CarrierData.CarrierName,
           CarrierLevel: CarrierData.CarrierLevel,
           CarrierPerson: CarrierData.CarrierPerson,
-          
+          Address: CarrierData.Address,
+          Tel: CarrierData.Tel,
+          Email: CarrierData.Email,
           Remark: CarrierData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Carrier", JSON.stringify(CarrierDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Carrier/InsertCarrier', UserFormData)
+        UserFormData.append("model", JSON.stringify(CarrierDto));
+        this.$axios.post(this.$httpUrl + '/Carrier/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -214,18 +192,22 @@ export default {
       }
       else if (this.dialogTitle === '编辑承运商') {
         const CarrierDto = {
-          CarrierId : CarrierData.CarrierId,
+          CarrierId: CarrierData.CarrierId,
+          CarrierNo: CarrierData.CarrierNo,
           CarrierName: CarrierData.CarrierName,
           CarrierLevel: CarrierData.CarrierLevel,
           CarrierPerson: CarrierData.CarrierPerson,
-          Remark: CarrierData.Remark
+          Address: CarrierData.Address,
+          Tel: CarrierData.Tel,
+          Email: CarrierData.Email,
+          Remark: CarrierData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Carrier", JSON.stringify(CarrierDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Carrier/UpdateCarrier', UserFormData)
+        UserFormData.append("model", JSON.stringify(CarrierDto));
+        UserFormData.append("id", CarrierData.CarrierId);
+        this.$axios.post(this.$httpUrl + '/Carrier/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -255,32 +237,10 @@ export default {
     showEditCarrierDialog(Carrier) {
       // 显示编辑承运商对话框的逻辑
       this.dialogTitle = '编辑承运商';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("CarrierId", Carrier.CarrierId);
-      this.$axios.post(this.$httpUrl + '/Carrier/GetMenuByCarrierId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.addEditDialogVisible = true;
-            this.selectedCarrier = Carrier;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
+      this.addEditDialogVisible = true;
+      this.selectedCarrier = Carrier;
     },
-    
+
     cancelAddEditCarrier() {
       // 取消添加或编辑承运商的逻辑
       this.dialogVisible = false;
@@ -293,7 +253,7 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
       UserFormData.append("Carrier", JSON.stringify(CarrierDto));
-      this.$axios.post(this.$httpUrl + '/Carrier/DeleteCarrier', UserFormData)
+      this.$axios.post(this.$httpUrl + '/Carrier/Delete', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {

@@ -2,10 +2,13 @@
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
     <el-form :model="dialogCustomer" :rules="rules" ref="CustomerForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="Customer[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Customer[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="dialogCustomer[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogCustomer[field.prop]">
         </el-input>
-       
+        <el-select v-if="field.type === 'select'" v-model="dialogCustomer[field.prop]"
+          placeholder="请选择级别">
+          <el-option v-for="item in LevelList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -40,8 +43,8 @@ export default {
         CustomerName: [
           { required: true, message: '请输入客户名称', trigger: 'blur' }
         ],
-        CustomerType: [
-          { required: true, message: '请输入客户类型', trigger: 'blur' }
+        CustomerNo: [
+          { required: true, message: '请输入客户编号', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -51,7 +54,7 @@ export default {
       dialogTitle: this.title,
       dialogCustomer: Object,
       formFields: [
-      {
+        {
           prop: 'CustomerNo',
           label: '客户编号',
           type: 'input',
@@ -60,7 +63,7 @@ export default {
           prop: 'CustomerName',
           label: '客户名称',
           type: 'input',
-        },  {
+        }, {
           prop: 'Address',
           label: '地址',
           type: 'input',
@@ -92,6 +95,11 @@ export default {
           rows: 3,
         },
       ],
+      LevelList: [
+        { label: '普通客户', value: '0' },
+        { label: '重点客户', value: '1' },
+        { label: 'VIP客户', value: '2' },
+      ],
     }
   },
   watch: {
@@ -117,9 +125,6 @@ export default {
       this.$refs.CustomerForm.validate(valid => {
         if (valid) {
           this.$emit('confirmAction', this.dialogCustomer, this.menuIds);
-          console.log('数据发出');
-          console.log(this.dialogCustomer);
-          console.log(this.menuIds);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -129,11 +134,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogCustomer = null;
-      this.dialogMenuIds = [];
-      this.menuList.forEach(menu => {
-        menu.expanded = false;
-      });
+      this.dialogCustomer = {};
 
       this.$emit('update:visible', false);
     }

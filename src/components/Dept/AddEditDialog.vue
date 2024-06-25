@@ -5,7 +5,7 @@
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogDept[field.prop]" :style="getInputStyle(field)">
+            <el-input v-if="field.type === 'input'" v-model="dialogDept[field.prop]">
               <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
             </el-input>
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
@@ -65,7 +65,7 @@ export default {
       dialogDept: Object,
       formFields: [
         {
-          prop: 'DeptId',
+          prop: 'DeptNo',
           label: '部门编号',
           type: 'input',
         },
@@ -104,25 +104,6 @@ export default {
   mounted() {
   },
   methods: {
-    getInputStyle(field) {
-      if (this.title !== '编辑菜单') {
-        switch (field.label) {
-          case '图标':
-            return {
-              'padding-left': '100px',
-              'width': '210px'
-            };
-          case '菜单路径':
-            return {
-              'padding-left': '20px',
-              'width': '290px'
-            };
-
-          default:
-            return '';
-        }
-      }
-    },
     confirmAction() {
       // 确认添加或编辑角色的逻辑
       this.$refs.deptForm.validate(valid => {

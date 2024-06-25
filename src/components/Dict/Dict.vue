@@ -35,17 +35,17 @@ export default {
       dialogTitle: '',
       selectedDict: {},
       dictTypeList: {
-        "1":"单位类别",
+        "1": "单位类别",
         "2": "物料分类",
         "3": "入库单",
-        "4":"出库单",
-        "5":"设备分类",
-        "6":"设备产权",
+        "4": "出库单",
+        "5": "设备分类",
+        "6": "设备产权",
       },
 
-      
+
       formFields: [
-   
+
         {
           prop: 'DictName',
           label: '字典名称',
@@ -55,7 +55,7 @@ export default {
           prop: 'DictType',
           label: '字典类型',
           type: 'input',
-        },{
+        }, {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -103,7 +103,7 @@ export default {
             message: error
           });
         });
-        
+
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -136,26 +136,22 @@ export default {
     },
     showAddDictDialog() {
       // 显示新增字典对话框的逻辑
-     
+
       this.dialogTitle = '新增字典';
       this.addEditDialogVisible = true;
     },
     confirmAddEditDict(dictData) {
+      const UserFormData = new FormData();
       if (this.dialogTitle === '新增字典') {
         const dictDto = {
           DictType: dictData.DictType,
           DictName: dictData.DictName,
           Remark: dictData.Remark,
-          DictParent: dictData.DictParent,
-          DictUrl: dictData.DictUrl,
-          DictIcon: dictData.DictIcon,
-          DictOrder: dictData.DictOrder,
         };
-        const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("dict", JSON.stringify(dictDto));
-        this.$axios.post(this.$httpUrl + '/Dict/InsertDict', UserFormData)
+        this.$axios.post(this.$httpUrl + '/Dict/Insert', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -163,7 +159,6 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
-              console.log()
               this.init(); // 重新获取数据
             } else {
               this.$message({
@@ -180,7 +175,36 @@ export default {
           });
       }
       else if (this.dialogTitle === '编辑字典') {
-        //
+        const dictDto = {
+          DictType: dictData.DictType,
+          DictName: dictData.DictName,
+          Remark: dictData.Remark,
+        };
+        UserFormData.append("token", this.$store.state.token);
+        UserFormData.append("userId", this.$store.state.user.UserId);
+        UserFormData.append("dict", JSON.stringify(dictDto));
+        this.$axios.post(this.$httpUrl + '/Dict/Update', UserFormData)
+          .then(response => {
+            const data = response.data;
+            if (data.Item1) {
+              this.$message({
+                type: 'success',
+                message: data.Item2
+              });
+              this.init(); // 重新获取数据
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
       }
 
       this.dialogVisible = false;

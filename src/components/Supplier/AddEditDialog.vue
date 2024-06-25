@@ -2,11 +2,15 @@
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
     <el-form :model="dialogSupplier" :rules="rules" ref="SupplierForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="Supplier[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Supplier[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="dialogSupplier[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogSupplier[field.prop]">
         </el-input>
+
+        <el-select v-if="field.type === 'select'" v-model="dialogSupplier[field.prop]"
+          placeholder="请选择级别">
+          <el-option v-for="item in LevelList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-select>
       </el-form-item>
-      
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -31,14 +35,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    menuList: {
-      type: Array,
-      default: () => []
-    },
-    menuIds: {
-      type: Array,
-      default: () => []
-    },
   },
   computed: {
   },
@@ -48,8 +44,8 @@ export default {
         SupplierName: [
           { required: true, message: '请输入供应商名称', trigger: 'blur' }
         ],
-        SupplierType: [
-          { required: true, message: '请输入供应商类型', trigger: 'blur' }
+        SupplierNo: [
+          { required: true, message: '请输入供应商编号', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -58,7 +54,6 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogSupplier: Object,
-      dialogMenuList: this.menuList,
       formFields: [
       {
           prop: 'SupplierNo',
@@ -101,7 +96,11 @@ export default {
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
+      LevelList: [
+        { label: '普通合作', value: '0' },
+        { label: '重点合作', value: '1' },
+        { label: '自营', value: '2' },
+      ],
     }
   },
   watch: {
@@ -114,58 +113,20 @@ export default {
     Supplier(newValue) {
       this.dialogSupplier = newValue;
     },
-    menuList(newValue) {
-      this.dialogMenuList = newValue;
-    },
-    menuIds(newValue) {
-      this.dialogMenuIds = newValue;
-      this.dialogMenuList.forEach(menu => {
-        if (this.dialogMenuIds.includes(menu.MenuId)) {
-          menu.expanded = true;
-        } else {
-          menu.expanded = false;
-        }
-      });
-    },
+
   },
   created() {
     this.dialogSupplier = this.Supplier;
-    this.dialogMenuList = this.menuList;
-    this.dialogMenuIds = this.menuIds;
 
   },
   mounted() {
   },
   methods: {
-    toggleChildren(menu) {
-      menu.expanded = !menu.expanded;
-    },
-    handleParentChange(menu) {
-      if (this.menuIds.includes(menu.MenuId)) {
-        menu.Children.forEach(child => {
-          if (!this.menuIds.includes(child.MenuId)) {
-            this.dialogMenuIds.push(child.MenuId);
-          }
-        });
-      } else {
-        // 如果父菜单被取消选中，关闭子菜单并取消选中子菜单
-        menu.expanded = false;
-        menu.Children.forEach(child => {
-          const index = this.menuIds.indexOf(child.MenuId);
-          if (index !== -1) {
-            this.dialogMenuIds.splice(index, 1);
-          }
-        });
-      }
-    },
     confirmAction() {
       // 确认添加或编辑供应商的逻辑
       this.$refs.SupplierForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogSupplier, this.menuIds);
-          console.log('数据发出');
-          console.log(this.dialogSupplier);
-          console.log(this.menuIds);
+          this.$emit('confirmAction', this.dialogSupplier);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户
@@ -175,11 +136,7 @@ export default {
     },
     cancelDialog() {
       // 重置表单的逻辑
-      this.dialogSupplier = null;
-      this.dialogMenuIds = [];
-      this.menuList.forEach(menu => {
-        menu.expanded = false;
-      });
+      this.dialogSupplier = {};
 
       this.$emit('update:visible', false);
     }

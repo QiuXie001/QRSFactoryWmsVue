@@ -6,8 +6,9 @@
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
             <el-input v-if="field.type === 'input'" v-model="dialogMenu[field.prop]" :style="getInputStyle(field)">
-              <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>  <!-- 图标备注前缀 -->
-                        
+              <template v-if="field.prefix && title !== '编辑菜单'" slot="prefix">{{ field.prefix }}</template>
+              <!-- 图标备注前缀 -->
+
             </el-input>
 
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
@@ -152,6 +153,16 @@ export default {
           default:
             return '';
         }
+      }
+    },
+    getInputPrefix(fieldName) {
+      switch (fieldName) {
+        case 'MenuIcon':
+          return 'iconfont icon-'; // 假设这是图标字段的前缀
+        case '/':
+          return ''; 
+        default:
+          return '';
       }
     },
     confirmAction() {

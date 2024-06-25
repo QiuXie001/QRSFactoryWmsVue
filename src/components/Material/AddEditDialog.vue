@@ -3,25 +3,32 @@
     <el-form :model="dialogMaterial" :rules="rules" ref="MaterialForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
         <el-input v-if="field.type === 'input'" v-model="dialogMaterial[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogMaterial[field.prop]">
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
+          v-model="dialogMaterial[field.prop]">
         </el-input>
-        <el-select v-if="field.type === 'select'&& field.label==='所属仓库'" v-model="dialogMaterial[field.prop]" placeholder="请选择仓库">
-          <el-option v-for="(key,value) in warehouseList" :key="value" :label="key"
-          :value="value"></el-option>
-              
-            </el-select>
-            <el-select v-if="field.type === 'select'&& field.label==='所属库区'" v-model="dialogMaterial[field.prop]" placeholder="请选择库区">
-          <el-option v-for="(key,value) in reservoirAreaList" :key="value" :label="key"
-          :value="value"></el-option>
-              
-            </el-select>
-            <el-select v-if="field.type === 'select'&& field.label==='所属货架'" v-model="dialogMaterial[field.prop]" placeholder="请选择货架">
-          <el-option v-for="(key,value) in storagerackList" :key="value" :label="key"
-          :value="value"></el-option>
-              
-            </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '物料类型'" v-model="dialogMaterial[field.prop]"
+          placeholder="请选择物料类型">
+          <el-option v-for="(key, value) in materialTypeList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '单位'" v-model="dialogMaterial[field.prop]"
+          placeholder="请选择单位">
+          <el-option v-for="(key, value) in unitList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '所属仓库'" v-model="dialogMaterial[field.prop]"
+          placeholder="请选择仓库">
+          <el-option v-for="(key, value) in warehouseList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '所属库区'" v-model="dialogMaterial[field.prop]"
+          placeholder="请选择库区">
+          <el-option v-for="(key, value) in reservoirAreaList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '所属货架'" v-model="dialogMaterial[field.prop]"
+          placeholder="请选择货架">
+          <el-option v-for="(key, value) in storagerackList" :key="value" :label="key" :value="value"></el-option>
+
+        </el-select>
       </el-form-item>
-      
+
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog">取消</el-button>
@@ -48,6 +55,14 @@ export default {
       type: Object,
       default: () => ({})
     },
+    unitList: {
+      type: Object,
+      default: () => ({})
+    },
+    materialTypeList: {
+      type: Object,
+      default: () => ({})
+    },
     warehouseList: {
       type: Object,
       default: () => ({})
@@ -55,12 +70,12 @@ export default {
     reservoirAreaList: {
       type: Object,
       default: () => ({})
-    }, 
+    },
     storagerackList: {
       type: Object,
       default: () => ({})
     },
-  
+
   },
   computed: {
   },
@@ -80,11 +95,13 @@ export default {
       dialogVisible: this.visible,
       dialogTitle: this.title,
       dialogMaterial: Object,
-      dialogWarehouseList:Object,
-      dialogReservoirAreaList:Object,
-      dialogStoragerackList:Object,
+      dialogUnitList: Object,
+      dialogMaterialTypeList: Object,
+      dialogWarehouseList: Object,
+      dialogReservoirAreaList: Object,
+      dialogStoragerackList: Object,
       formFields: [
-      {
+        {
           prop: 'MaterialNo',
           label: '物料编号',
           type: 'input',
@@ -95,13 +112,13 @@ export default {
           type: 'input',
         },
         {
-          prop: 'MaterialType',
+          prop: 'MaterialTypeId',
           label: '物料类型',
-          type: 'input',
+          type: 'select',
         }, {
-          prop: 'UnitType',
+          prop: 'UnitId',
           label: '单位',
-          type: 'input',
+          type: 'select',
         }, {
           prop: 'WarehouseId',
           label: '所属仓库',
@@ -111,10 +128,10 @@ export default {
           label: '所属库区',
           type: 'select',
         }, {
-          prop: 'StoragerackId',
+          prop: 'StorageRackId',
           label: '所属货架',
           type: 'select',
-        },{
+        }, {
           prop: 'ExpiryDate',
           label: '有效期',
           type: 'input',
@@ -126,7 +143,7 @@ export default {
           rows: 3,
         },
       ],
-     
+
     }
   },
   watch: {
@@ -139,6 +156,12 @@ export default {
     Material(newValue) {
       this.dialogMaterial = newValue;
     },
+    unitList(newValue) {
+      this.dialogUnitList = newValue;
+    },
+    materialTypeList(newValue) {
+      this.dialogMaterialTypeList = newValue;
+    },
     warehouseList(newValue) {
       this.dialogWarehouseList = newValue;
     },
@@ -148,12 +171,14 @@ export default {
     storagerackList(newValue) {
       this.dialogStoragerackList = newValue;
     },
-   
-   
+
+
   },
   created() {
     this.dialogMaterial = this.Material;
-    this.dialogWarehouseList =this.warehouseList;
+    this.dialogUnitList = this.unitList;
+    this.dialogMaterialTypeList = this.materialTypeList;
+    this.dialogWarehouseList = this.warehouseList;
     this.dialogReservoirAreaList = this.reservoirAreaList;
     this.dialogStoragerackList = this.storagerackList;
 
@@ -178,7 +203,7 @@ export default {
     cancelDialog() {
       // 重置表单的逻辑
       this.dialogMaterial = {};
-     
+
 
       this.$emit('update:visible', false);
     }

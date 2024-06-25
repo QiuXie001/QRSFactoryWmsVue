@@ -9,13 +9,13 @@
             </el-table-column>
             <el-table-column prop="MaterialNo" label="物料编号"></el-table-column>
             <el-table-column prop="MaterialName" label="物料名称"></el-table-column>
-            <el-table-column prop="MaterialType" label="物料分类"></el-table-column>
-            <el-table-column prop="Unit" label="单位"></el-table-column>
+            <el-table-column prop="MaterialTypeName" label="物料分类"></el-table-column>
+            <el-table-column prop="UnitName" label="单位"></el-table-column>
             <el-table-column prop="ExpiryDate" label="有效期"></el-table-column>
-             <el-table-column prop="StoragerackId" label="所属货架"></el-table-column>
-             <el-table-column prop="ReservoirAreaId" label="所属库区"></el-table-column> 
-                <el-table-column prop="WarehouseId" label="所属仓库"></el-table-column>
-                <el-table-column prop="Remark" label="备注"></el-table-column>
+            <el-table-column prop="StorageRackName" label="所属货架"></el-table-column>
+            <el-table-column prop="ReservoirAreaName" label="所属库区"></el-table-column>
+            <el-table-column prop="WarehouseName" label="所属仓库"></el-table-column>
+            <el-table-column prop="Remark" label="备注"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="IsDel" label="是否禁用">

@@ -201,7 +201,6 @@ export default {
                 type: 'success',
                 message: data.Item2
               });
-              console.log()
               this.init(); // 重新获取数据
             } else {
               this.$message({

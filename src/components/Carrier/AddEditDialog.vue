@@ -2,9 +2,13 @@
   <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :show-close="false">
     <el-form :model="dialogCarrier" :rules="rules" ref="CarrierForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
-        <el-input v-if="field.type === 'input'" v-model="Carrier[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="Carrier[field.prop]">
+        <el-input v-if="field.type === 'input'" v-model="dialogCarrier[field.prop]"></el-input>
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogCarrier[field.prop]">
         </el-input>
+        <el-select v-if="field.type === 'select'" v-model="dialogCarrier[field.prop]"
+          placeholder="请选择级别">
+          <el-option v-for="item in LevelList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -39,8 +43,8 @@ export default {
         CarrierName: [
           { required: true, message: '请输入承运商名称', trigger: 'blur' }
         ],
-        CarrierType: [
-          { required: true, message: '请输入承运商类型', trigger: 'blur' }
+        CarrierNo: [
+          { required: true, message: '请输入承运商编号', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -91,6 +95,11 @@ export default {
           rows: 3,
         },
       ],
+      LevelList: [
+        { label: '普通合作', value: '0' },
+        { label: '重点合作', value: '1' },
+        { label: '自营', value: '2' },
+      ],
     }
   },
   watch: {
@@ -116,8 +125,6 @@ export default {
       this.$refs.CarrierForm.validate(valid => {
         if (valid) {
           this.$emit('confirmAction', this.dialogCarrier);
-          console.log('数据发出');
-          console.log(this.dialogCarrier);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户

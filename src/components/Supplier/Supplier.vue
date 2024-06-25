@@ -4,7 +4,7 @@
     <SupplierList :rows="SupplierList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editSupplier="showEditSupplierDialog" @deleteSupplier="handleDeleteSupplier" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Supplier="selectedSupplier"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditSupplier"
+      :formFields="formFields" @confirmAction="confirmAddEditSupplier"
       @cancel="cancelAddEditSupplier" />
   </div>
 </template>
@@ -34,10 +34,8 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedSupplier: {},
-      menuIds: [],
-      menuList: [],
       formFields: [
-      {
+        {
           prop: 'SupplierNo',
           label: '供应商编号',
           type: 'input',
@@ -46,7 +44,7 @@ export default {
           prop: 'SupplierName',
           label: '供应商名称',
           type: 'input',
-        },  {
+        }, {
           prop: 'Address',
           label: '地址',
           type: 'input',
@@ -119,28 +117,6 @@ export default {
             message: error
           });
         });
-
-      const menuFormData = new FormData();
-      menuFormData.append("token", this.$store.state.token);
-      menuFormData.append("userId", this.$store.state.user.UserId);
-      this.$axios.post(this.$httpUrl + '/Menu/GetMenus', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuList = data.rows;
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -177,20 +153,23 @@ export default {
       this.selectedSupplier = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditSupplier(SupplierData, menuIds) {
+    confirmAddEditSupplier(SupplierData) {
       if (this.dialogTitle === '新增供应商') {
         const SupplierDto = {
-          SupplierPerson: SupplierData.SupplierPerson,
           SupplierName: SupplierData.SupplierName,
           SupplierLevel: SupplierData.SupplierLevel,
+          SupplierNo: SupplierData.SupplierNo,
+          SupplierPerson: SupplierData.SupplierPerson,
+          Address: SupplierData.Address,
+          Tel: SupplierData.Tel,
+          Email: SupplierData.Email,
           Remark: SupplierData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Supplier", JSON.stringify(SupplierDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Supplier/Insert', UserFormData)
+        UserFormData.append("model", JSON.stringify(SupplierDto));
+        this.$axios.post(this.$httpUrl + '/Supplier/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -215,16 +194,21 @@ export default {
       else if (this.dialogTitle === '编辑供应商') {
         const SupplierDto = {
           SupplierId: SupplierData.SupplierId,
-          SupplierType: SupplierData.SupplierType,
           SupplierName: SupplierData.SupplierName,
-          Remark: SupplierData.Remark
+          SupplierLevel: SupplierData.SupplierLevel,
+          SupplierNo: SupplierData.SupplierNo,
+          SupplierPerson: SupplierData.SupplierPerson,
+          Address: SupplierData.Address,
+          Tel: SupplierData.Tel,
+          Email: SupplierData.Email,
+          Remark: SupplierData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Supplier", JSON.stringify(SupplierDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Supplier/Update', UserFormData)
+        UserFormData.append("model", JSON.stringify(SupplierDto));
+        UserFormData.append("Id", SupplierData.SupplierId);
+        this.$axios.post(this.$httpUrl + '/Supplier/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -254,42 +238,8 @@ export default {
     showEditSupplierDialog(Supplier) {
       // 显示编辑供应商对话框的逻辑
       this.dialogTitle = '编辑供应商';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("SupplierId", Supplier.SupplierId);
-      this.$axios.post(this.$httpUrl + '/Supplier/GetMenuBySupplierId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedSupplier = Supplier;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-    },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
+      this.addEditDialogVisible = true;
+      this.selectedSupplier = Supplier;
     },
     cancelAddEditSupplier() {
       // 取消添加或编辑供应商的逻辑

@@ -5,16 +5,14 @@
         <el-input v-if="field.type === 'input'" v-model="dialogStorageRack[field.prop]"></el-input>
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="storageRack[field.prop]">
         </el-input>
-        <el-select v-if="field.type === 'select'&& field.label==='所属仓库'" v-model="dialogStorageRack[field.prop]" placeholder="请选择仓库">
-          <el-option v-for="(key,value) in warehouseList" :key="value" :label="key"
-          :value="value"></el-option>
-              
-            </el-select>
-            <el-select v-if="field.type === 'select'&& field.label==='所属库区'" v-model="dialogStorageRack[field.prop]" placeholder="请选择库区">
-          <el-option v-for="(key,value) in reservoirAreaList" :key="value" :label="key"
-          :value="value"></el-option>
-              
-            </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '所属仓库'" v-model="dialogStorageRack[field.prop]"
+          placeholder="请选择仓库">
+          <el-option v-for="(key, value) in warehouseList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
+        <el-select v-if="field.type === 'select' && field.label === '所属库区'" v-model="dialogStorageRack[field.prop]"
+          placeholder="请选择库区">
+          <el-option v-for="(key, value) in reservoirAreaList" :key="value" :label="key" :value="value"></el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -48,7 +46,7 @@ export default {
       type: Object,
       default: () => ({})
     },
-   
+
   },
   computed: {
   },
@@ -95,7 +93,7 @@ export default {
           rows: 3,
         },
       ],
-      
+
     }
   },
   watch: {
@@ -114,7 +112,7 @@ export default {
     reservoirAreaList(newValue) {
       this.dialogReservoirAreaList = newValue;
     },
-   
+
   },
   created() {
     this.dialogStorageRack = this.storageRack;
@@ -125,7 +123,7 @@ export default {
   mounted() {
   },
   methods: {
-    
+
     confirmAction() {
       // 确认添加或编辑货架的逻辑
       this.$refs.StorageRackForm.validate(valid => {

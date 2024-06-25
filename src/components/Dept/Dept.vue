@@ -36,7 +36,7 @@ export default {
       selectedDept: {},
       formFields: [
         {
-          prop: 'DeptId',
+          prop: 'DeptNo',
           label: '部门编号',
           type: 'input',
         },
@@ -136,13 +136,9 @@ export default {
     confirmAddEditDept(deptData) {
       if (this.dialogTitle === '新增部门') {
         const deptDto = {
-          DeptType: deptData.DeptType,
+          DeptNo: deptData.DeptNo,
           DeptName: deptData.DeptName,
           Remark: deptData.Remark,
-          DeptParent: deptData.DeptParent,
-          DeptUrl: deptData.DeptUrl,
-          DeptIcon: deptData.DeptIcon,
-          DeptOrder: deptData.DeptOrder,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
@@ -174,6 +170,7 @@ export default {
       }
       else if (this.dialogTitle === '编辑部门') {
         //
+
       }
 
       this.dialogVisible = false;

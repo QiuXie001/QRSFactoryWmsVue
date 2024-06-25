@@ -20,9 +20,9 @@
       <el-col :span="2" :offset="0">
         <el-button type="primary" @click="handleSearch()">搜索</el-button>
       </el-col>
-      <el-col :span="2" :offset="4">
+      <!-- <el-col :span="2" :offset="4">
         <el-button type="primary" @click="handleAdd()">新增部门</el-button>
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>
