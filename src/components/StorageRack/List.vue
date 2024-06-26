@@ -9,8 +9,8 @@
             </el-table-column>
           <el-table-column prop="StorageRackNo" label="货架编号"></el-table-column>
           <el-table-column prop="StorageRackName" label="货架名称"></el-table-column>
-          <el-table-column prop="WarehouseId" label="所属仓库"></el-table-column>
-          <el-table-column prop="ReservoirAreaId" label="所属库区"></el-table-column>
+          <el-table-column prop="WarehouseName" label="所属仓库"></el-table-column>
+          <el-table-column prop="ReservoirAreaName" label="所属库区"></el-table-column>
           <el-table-column prop="Remark" label="备注"></el-table-column>
           <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
           <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>

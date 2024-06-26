@@ -9,7 +9,7 @@
             </el-table-column>
             <el-table-column prop="ReservoirAreaNo" label="库区编号"></el-table-column>
             <el-table-column prop="ReservoirAreaName" label="库区名称"></el-table-column>
-            <el-table-column prop="WarehouseId" label="所属仓库"></el-table-column>
+            <el-table-column prop="WarehouseName" label="所属仓库"></el-table-column>
             <el-table-column prop="Remark" label="备注"></el-table-column>
             <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
             <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
@@ -51,11 +51,11 @@ export default {
             return cellValue === 1 ? "是" : "否";
         },
         handleEdit(index, row) {
-            // 触发编辑角色事件，传递当前行数据
+            // 触发编辑库区事件，传递当前行数据
             this.$emit('editReservoirArea', row);
         },
         handleDelete(index, row) {
-            // 触发删除角色事件，传递当前行数据
+            // 触发删除库区事件，传递当前行数据
             this.$emit('deleteReservoirArea', row);
         },
         handlePageChange(newPage) {

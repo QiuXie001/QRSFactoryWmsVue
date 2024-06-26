@@ -48,7 +48,7 @@ export default {
         },
 
         {
-          prop: 'WarehouseId',
+          prop: 'WarehouseName',
           label: '所属仓库',
           type: 'select',
         },        {
@@ -83,7 +83,7 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.ReservoirAreaList = data.rows; // 假设data.rows是你的角色列表
+            this.ReservoirAreaList = data.rows; // 假设data.rows是你的库区列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -152,24 +152,24 @@ export default {
       this.init();
     },
     showAddReservoirAreaDialog() {
-      // 显示新增角色对话框的逻辑
-      this.dialogTitle = '新增角色';
+      // 显示新增库区对话框的逻辑
+      this.dialogTitle = '新增库区';
       this.selectedReservoirArea = {};
       this.addEditDialogVisible = true;
     },
-    confirmAddEditReservoirArea(ReservoirAreaData, menuIds) {
-      if (this.dialogTitle === '新增角色') {
+    confirmAddEditReservoirArea(ReservoirAreaData) {
+      if (this.dialogTitle === '新增库区') {
         const ReservoirAreaDto = {
-          ReservoirAreaType: ReservoirAreaData.ReservoirAreaType,
+          ReservoirAreaNo: ReservoirAreaData.ReservoirAreaNo,
           ReservoirAreaName: ReservoirAreaData.ReservoirAreaName,
+          WarehouseId: ReservoirAreaData.WarehouseId,
           Remark: ReservoirAreaData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("ReservoirArea", JSON.stringify(ReservoirAreaDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/ReservoirArea/InsertReservoirArea', UserFormData)
+        UserFormData.append("model", JSON.stringify(ReservoirAreaDto));
+        this.$axios.post(this.$httpUrl + '/ReservoirArea/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -191,19 +191,20 @@ export default {
             });
           });
       }
-      else if (this.dialogTitle === '编辑角色') {
+      else if (this.dialogTitle === '编辑库区') {
         const ReservoirAreaDto = {
           ReservoirAreaId: ReservoirAreaData.ReservoirAreaId,
-          ReservoirAreaType: ReservoirAreaData.ReservoirAreaType,
+          ReservoirAreaNo: ReservoirAreaData.ReservoirAreaNo,
           ReservoirAreaName: ReservoirAreaData.ReservoirAreaName,
+          WarehouseId: ReservoirAreaData.WarehouseId,
           Remark: ReservoirAreaData.Remark
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("ReservoirArea", JSON.stringify(ReservoirAreaDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/ReservoirArea/UpdateReservoirArea', UserFormData)
+        UserFormData.append("model", JSON.stringify(ReservoirAreaDto));
+        UserFormData.append("id", ReservoirAreaData.ReservoirAreaId);
+        this.$axios.post(this.$httpUrl + '/ReservoirArea/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -225,53 +226,19 @@ export default {
             });
           });
       }
-      // 确认添加或编辑角色的逻辑
+      // 确认添加或编辑库区的逻辑
       this.dialogVisible = false;
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
     showEditReservoirAreaDialog(ReservoirArea) {
-      // 显示编辑角色对话框的逻辑
-      this.dialogTitle = '编辑角色';
-      const UserFormData = new FormData();
-      UserFormData.append("token", this.$store.state.token);
-      UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("ReservoirAreaId", ReservoirArea.ReservoirAreaId);
-      this.$axios.post(this.$httpUrl + '/ReservoirArea/GetMenuByReservoirAreaId', UserFormData)
-        .then(response => {
-          const data = response.data;
-          if (data) {
-            this.menuIds = this.extractIdsFromMenu(data);
-            this.addEditDialogVisible = true;
-            this.selectedReservoirArea = ReservoirArea;
-
-          } else {
-            this.$message({
-              type: 'error',
-              message: data.Item2
-            });
-          }
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error
-          });
-        });
-    },
-    extractIdsFromMenu(menuData) {
-      let ids = [];
-      menuData.forEach(item => {
-        ids.push(parseInt(item.Id)); // 添加当前菜单项的Id
-        if (item.Children && item.Children.length > 0) {
-          // 如果有子菜单，递归调用
-          ids = ids.concat(this.extractIdsFromMenu(item.Children));
-        }
-      });
-      return ids;
+      // 显示编辑库区对话框的逻辑
+      this.dialogTitle = '编辑库区';
+      this.addEditDialogVisible = true;
+      this.selectedReservoirArea = ReservoirArea;
     },
     cancelAddEditReservoirArea() {
-      // 取消添加或编辑角色的逻辑
+      // 取消添加或编辑库区的逻辑
       this.dialogVisible = false;
     },
     handleDeleteReservoirArea(ReservoirAreaData) {

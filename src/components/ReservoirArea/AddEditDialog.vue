@@ -46,10 +46,10 @@ export default {
     return {
       rules: {
         ReservoirAreaName: [
-          { required: true, message: '请输入角色名称', trigger: 'blur' }
+          { required: true, message: '请输入库区名称', trigger: 'blur' }
         ],
-        ReservoirAreaType: [
-          { required: true, message: '请输入角色类型', trigger: 'blur' }
+        ReservoirAreaNo: [
+          { required: true, message: '请输入库区编号', trigger: 'blur' }
         ],
         // 如果备注是可选的，可以不添加规则
         Remark: [],
@@ -82,7 +82,6 @@ export default {
           rows: 3,
         },
       ],
-      dialogMenuIds: this.menuIds,
     }
   },
   watch: {
@@ -111,13 +110,10 @@ export default {
   methods: {
    
     confirmAction() {
-      // 确认添加或编辑角色的逻辑
+      // 确认添加或编辑库区的逻辑
       this.$refs.ReservoirAreaForm.validate(valid => {
         if (valid) {
-          this.$emit('confirmAction', this.dialogReservoirArea, this.menuIds);
-          console.log('数据发出');
-          console.log(this.dialogReservoirArea);
-          console.log(this.menuIds);
+          this.$emit('confirmAction', this.dialogReservoirArea);
           this.cancelDialog();
         } else {
           // 验证不通过，提示用户

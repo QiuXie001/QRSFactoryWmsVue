@@ -2,10 +2,15 @@
   <div>
     <Search @search="handleSearch" @addStockIn="showAddStockInDialog" />
     <StockInList :rows="StockInList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
-      @editStockIn="showEditStockInDialog" @deleteStockIn="handleDeleteStockIn" @pageChange="handlePageChange" />
+      @detailStockIn="showDetailStockInDialog" @editStockIn="showEditStockInDialog" @deleteStockIn="handleDeleteStockIn"
+      @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :StockIn="selectedStockIn"
-      :formFields="formFields" :supplierList="supplierList" :stockInTypeList="stockInTypeList" @confirmAction="confirmAddEditStockIn"
-      @cancel="cancelAddEditStockIn" />
+      :formFields="formFields" :supplierList="supplierList" :stockInTypeList="stockInTypeList"
+      @confirmAction="confirmAddEditStockIn" @cancel="cancelAddEditStockIn" />
+    <Detail :visible.sync="detailVisible" :addVisible.sync="addDetailVisible" :StockIn="selectedStockIn"
+      :StockInDetail="selectedStockInDetail" @cancel="cancelDetailStockIn" style="width: 120%" />
+    <DetailAddDialog :visible.sync="addDetailVisible" :StockIn="selectedStockIn" :MaterialList="materialList"
+      @confirmAction="confirmAddStockInDetail" />
   </div>
 </template>
 
@@ -13,13 +18,17 @@
 import Search from './Search';
 import StockInList from './List';
 import AddEditDialog from './AddEditDialog';
+import Detail from './Detail';
+import DetailAddDialog from './DetailAddDialog';
 
 export default {
   name: 'StockIn',
   components: {
     Search,
     StockInList,
-    AddEditDialog
+    AddEditDialog,
+    Detail,
+    DetailAddDialog
   },
 
   created() {
@@ -32,17 +41,20 @@ export default {
       pageSize: 8,
       total: 0,
       addEditDialogVisible: false,
+      addDetailVisible: false,
       dialogTitle: '',
       selectedStockIn: {},
+      selectedStockInDetail: [],
+      detailVisible: false,
       stockInTypeList: {
-        "1":"采购入库单",
-        "2":"退货入库单",
-        "3":"试用入库",
-
+        "1": "采购入库单",
+        "2": "退货入库单",
+        "3": "试用入库",
       },
-      supplierList:{},
+      supplierList: {},
+      materialList: {},
       formFields: [
-        
+
         {
           prop: 'OrderNo',
           label: '订单编号',
@@ -50,7 +62,12 @@ export default {
         },
         {
           prop: 'StockInNo',
-          label: '入库单',
+          label: '入库单号',
+          type: 'input',
+        },
+        {
+          prop: 'StockInTypeId',
+          label: '入库单类型',
           type: 'select',
         },
         {
@@ -75,8 +92,8 @@ export default {
         datemin: '2023-01-01', // 日期范围搜索的最小日期
         datemax: null, // 日期范围搜索的最大日期
         keyword: null, // 额外的搜索关键词
-        StockInType : null,
-        StockInStatus:null
+        StockInType: null,
+        StockInStatus: null
       },
     }
   },
@@ -95,6 +112,53 @@ export default {
             this.StockInList = data.rows; // 假设data.rows是你的入库列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
+      const MaterialListFormData = new FormData();
+      MaterialListFormData.append("token", this.$store.state.token);
+      MaterialListFormData.append("userId", this.$store.state.user.UserId);
+
+      this.$axios.post(this.$httpUrl + '/Material/GetMaterialList', MaterialListFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.materialList = data;
+            // 其他需要更新的数据...
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
+      const stockInTypeFormData = new FormData();
+      stockInTypeFormData.append("token", this.$store.state.token);
+      stockInTypeFormData.append("userId", this.$store.state.user.UserId);
+      stockInTypeFormData.append("type", "3");
+      this.$axios.post(this.$httpUrl + '/Dict/GetDictListByType', stockInTypeFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.stockInTypeList = data;
           } else {
             this.$message({
               type: 'error',
@@ -130,6 +194,31 @@ export default {
             message: error
           });
         });
+
+      if (this.selectedStockIn) {
+        const DetailFormData = new FormData();
+        DetailFormData.append("token", this.$store.state.token);
+        DetailFormData.append("userId", this.$store.state.user.UserId);
+        DetailFormData.append("pid", this.selectedStockIn.StockInId);
+        this.$axios.post(this.$httpUrl + '/StockIn/ListDetail', DetailFormData)
+          .then(response => {
+            const data = response.data;
+            if (data) {
+              this.selectedStockInDetail = data.rows;
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
+      }
     },
     handlePageChange(newPage) {
       this.currentPage = newPage;
@@ -169,16 +258,18 @@ export default {
     confirmAddEditStockIn(StockInData) {
       if (this.dialogTitle === '新增入库') {
         const StockInDto = {
-          StockInType: StockInData.StockInType,
-          StockInName: StockInData.StockInName,
-          Remark: StockInData.Remark,
+          StockInNo: StockInData.StockInNo,
+          OrderNo: StockInData.OrderNo,
+          StockInTypeId: StockInData.StockInTypeId,
+          SupplierId: StockInData.SupplierId,
+          Remark: StockInData.Remark
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("StockIn", JSON.stringify(StockInDto));
+        UserFormData.append("model", JSON.stringify(StockInDto));
 
-        this.$axios.post(this.$httpUrl + '/StockIn/InsertStockIn', UserFormData)
+        this.$axios.post(this.$httpUrl + '/StockIn/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -203,16 +294,20 @@ export default {
       else if (this.dialogTitle === '编辑入库') {
         const StockInDto = {
           StockInId: StockInData.StockInId,
-          StockInType: StockInData.StockInType,
-          StockInName: StockInData.StockInName,
+          StockInNo: StockInData.StockInNo,
+          OrderNo: StockInData.OrderNo,
+          StockInTypeId: StockInData.StockInTypeId,
+          SupplierId: StockInData.SupplierId,
           Remark: StockInData.Remark
         };
+
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("StockIn", JSON.stringify(StockInDto));
-       
-        this.$axios.post(this.$httpUrl + '/StockIn/UpdateStockIn', UserFormData)
+        UserFormData.append("model", JSON.stringify(StockInDto));
+        UserFormData.append("id", StockInData.StockInId);
+
+        this.$axios.post(this.$httpUrl + '/StockIn/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -239,16 +334,84 @@ export default {
       setTimeout(1000);
       this.init(); // 重新获取数据
     },
+    confirmAddStockInDetail(StockInDetail) {
+      const StockInDetailDto = {
+        StockInId: StockInDetail.StockInId,
+        MaterialId: StockInDetail.MaterialId,
+        ActInQty: StockInDetail.ActInQty,
+        PlanInQty: StockInDetail.PlanInQty,
+        Remark: StockInDetail.Remark,
+      };
+
+      const StockInDetailFormData = new FormData();
+      StockInDetailFormData.append("token", this.$store.state.token);
+      StockInDetailFormData.append("userId", this.$store.state.user.UserId);
+      StockInDetailFormData.append("model", JSON.stringify(StockInDetailDto));
+
+      this.$axios.post(this.$httpUrl + '/StockIn/AddOrUpdateDetail', StockInDetailFormData)
+        .then(response => {
+          const data = response.data;
+          if (data.Item1) {
+            this.$message({
+              type: 'success',
+              message: data.Item2
+            });
+            this.init(); // 重新获取数据
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+
+    },
     showEditStockInDialog(StockIn) {
       // 显示编辑入库对话框的逻辑
       this.dialogTitle = '编辑入库';
       this.addEditDialogVisible = true;
-            this.selectedStockIn = StockIn;
+      this.selectedStockIn = StockIn;
     },
-   
+    showDetailStockInDialog(stockIn) {
+      this.selectedStockIn = stockIn;
+      this.detailVisible = true;
+
+      const DetailFormData = new FormData();
+      DetailFormData.append("token", this.$store.state.token);
+      DetailFormData.append("userId", this.$store.state.user.UserId);
+      DetailFormData.append("pid", stockIn.StockInId);
+      this.$axios.post(this.$httpUrl + '/StockIn/ListDetail', DetailFormData)
+        .then(response => {
+          const data = response.data;
+          if (data) {
+            this.selectedStockInDetail = data.rows;
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.Item2
+            });
+          }
+        })
+        .catch(error => {
+          this.$message({
+            type: 'error',
+            message: error
+          });
+        });
+    },
     cancelAddEditStockIn() {
       // 取消添加或编辑入库的逻辑
       this.dialogVisible = false;
+    },
+    cancelDetailStockIn() {
+      // 取消添加或编辑入库的逻辑
+      this.detailVisible = false;
     },
     handleDeleteStockIn(StockInData) {
       const StockInDto = {

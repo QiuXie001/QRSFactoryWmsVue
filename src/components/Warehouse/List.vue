@@ -11,7 +11,7 @@
           <el-table-column prop="WarehouseName" label="仓库名称"></el-table-column>
           <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
           <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
-          <el-table-column prop="remark" label="备注" ></el-table-column>
+          <el-table-column prop="Remark" label="备注" ></el-table-column>
 
           <!-- 添加更多列，根据需要定义 -->
         </el-table>

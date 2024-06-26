@@ -256,7 +256,7 @@ export default {
           UserName: userData.UserName,
           UserNickname:userData.UserNickname,
           Pwd:userData.Pwd,
-          Sex:1,
+          Sex:userData.Sex,
           DeptId:userData.DeptId,
           RoleId:userData.RoleId,
           Remark: userData.Remark,

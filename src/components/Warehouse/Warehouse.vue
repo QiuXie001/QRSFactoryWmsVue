@@ -4,7 +4,7 @@
     <WarehouseList :rows="WarehouseList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editWarehouse="showEditWarehouseDialog" @deleteWarehouse="handleDeleteWarehouse" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Warehouse="selectedWarehouse"
-      :formFields="formFields" :menuList="menuList" :menuIds="menuIds" @confirmAction="confirmAddEditWarehouse"
+      :formFields="formFields" @confirmAction="confirmAddEditWarehouse"
       @cancel="cancelAddEditWarehouse" />
   </div>
 </template>
@@ -34,8 +34,6 @@ export default {
       addEditDialogVisible: false,
       dialogTitle: '',
       selectedWarehouse: {},
-      menuIds: [],
-      menuList: [],
       formFields: [
         {
           prop: 'WarehouseNo',
@@ -137,19 +135,18 @@ export default {
       this.selectedWarehouse = warehouse;
       this.addEditDialogVisible = true;
     },
-    confirmAddEditWarehouse(WarehouseData, menuIds) {
+    confirmAddEditWarehouse(WarehouseData) {
       if (this.dialogTitle === '新增仓库') {
         const WarehouseDto = {
-          WarehouseType: WarehouseData.WarehouseType,
+          WarehouseNo: WarehouseData.WarehouseNo,
           WarehouseName: WarehouseData.WarehouseName,
           Remark: WarehouseData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + '/Warehouse/InsertWarehouse', UserFormData)
+        UserFormData.append("model", JSON.stringify(WarehouseDto));
+        this.$axios.post(this.$httpUrl + '/Warehouse/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -174,16 +171,16 @@ export default {
       else if (this.dialogTitle === '编辑仓库') {
         const WarehouseDto = {
           WarehouseId: WarehouseData.WarehouseId,
-          WarehouseType: WarehouseData.WarehouseType,
+          WarehouseNo: WarehouseData.WarehouseNo,
           WarehouseName: WarehouseData.WarehouseName,
           Remark: WarehouseData.Remark
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
-        UserFormData.append("menuId", menuIds);
-        this.$axios.post(this.$httpUrl + 'Warehouse/AddOrUpdate', UserFormData)
+        UserFormData.append("model", JSON.stringify(WarehouseDto));
+        UserFormData.append("Id", WarehouseData.WarehouseId);
+        this.$axios.post(this.$httpUrl + '/Warehouse/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -226,14 +223,11 @@ export default {
       this.dialogVisible = false;
     },
     handleDeleteWarehouse(WarehouseData) {
-      const WarehouseDto = {
-        WarehouseId: WarehouseData.WarehouseId
-      };
       const UserFormData = new FormData();
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
-      UserFormData.append("Warehouse", JSON.stringify(WarehouseDto));
-      this.$axios.post(this.$httpUrl + 'Warehouse/Delete', UserFormData)
+      UserFormData.append("Id", WarehouseData.WarehouseId);
+      this.$axios.post(this.$httpUrl + '/Warehouse/Delete', UserFormData)
         .then(response => {
           const data = response.data;
           if (data.Item1) {

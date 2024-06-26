@@ -15,7 +15,7 @@
             <el-table-column prop="Email" label="邮箱"></el-table-column>
             <el-table-column prop="Sex" label="性别">
                 <template slot-scope="scope">
-                    {{ scope.row.IsDel === 0 ? '男' : '女' }}
+                    {{ scope.row.Sex === 0 ? '男' : '女' }}
                 </template>
             </el-table-column>
             <el-table-column prop="IsDel" label="是否禁用">

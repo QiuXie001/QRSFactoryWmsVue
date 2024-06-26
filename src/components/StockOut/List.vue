@@ -1,15 +1,16 @@
 <template>
     <div>
         <el-table :data="this.rows" border style="width: 100%">
-            <el-table-column prop="Tool" label="操作">
+            <el-table-column prop="Tool" label="操作" width="220">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button size="mini" @click="handleDetail(scope.$index, scope.row)">明细</el-button>
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
             <el-table-column prop="StockOutNo" label="出库单号"></el-table-column>
           <el-table-column prop="OrderNo" label="订单号"></el-table-column>
-          <el-table-column prop="StockoutType" label="出库类型"></el-table-column>
+          <el-table-column prop="StockOutTypeName" label="出库类型"></el-table-column>
           <el-table-column prop="CustomerId" label="客户编号"></el-table-column>
           <el-table-column prop="CustomerName" label="客户名称"></el-table-column>
           <el-table-column prop="StockOutStatus" label="状态"></el-table-column>
@@ -56,11 +57,14 @@ export default {
         },
         handleEdit(index, row) {
             // 触发编辑出库事件，传递当前行数据
-            this.$emit('editStockout', row);
+            this.$emit('editStockOut', row);
+        },
+        handleDetail(index, row) {
+            this.$emit('detailStockOut', row);
         },
         handleDelete(index, row) {
             // 触发删除出库事件，传递当前行数据
-            this.$emit('deleteStockout', row);
+            this.$emit('deleteStockOut', row);
         },
         handlePageChange(newPage) {
             // 触发分页变化事件，传递新的页码

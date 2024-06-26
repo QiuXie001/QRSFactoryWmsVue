@@ -144,7 +144,7 @@ export default {
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
         UserFormData.append("dept", JSON.stringify(deptDto));
-        this.$axios.post(this.$httpUrl + '/Dept/InsertDept', UserFormData)
+        this.$axios.post(this.$httpUrl + '/Dept/Insert', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -169,8 +169,39 @@ export default {
           });
       }
       else if (this.dialogTitle === '编辑部门') {
-        //
-
+        const deptDto = {
+          DeptId: deptData.DeptId,
+          DeptNo: deptData.DeptNo,
+          DeptName: deptData.DeptName,
+          Remark: deptData.Remark,
+        };
+        const UserFormData = new FormData();
+        UserFormData.append("token", this.$store.state.token);
+        UserFormData.append("userId", this.$store.state.user.UserId);
+        UserFormData.append("dept", JSON.stringify(deptDto));
+        this.$axios.post(this.$httpUrl + '/Dept/Update', UserFormData)
+          .then(response => {
+            const data = response.data;
+            if (data.Item1) {
+              this.$message({
+                type: 'success',
+                message: data.Item2
+              });
+              console.log()
+              this.init(); // 重新获取数据
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
       }
 
       this.dialogVisible = false;

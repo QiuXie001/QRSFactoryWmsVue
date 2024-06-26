@@ -4,8 +4,8 @@
       <el-col :span="12">
         <el-form :model="searchForm" ref="searchForm">
           <el-col :span="8">
-            <el-form-item prop="StockoutName">
-              <el-input v-model="searchForm.StockoutName" placeholder="请输入出库名称"></el-input>
+            <el-form-item prop="StockOutName">
+              <el-input v-model="searchForm.StockOutName" placeholder="请输入出库名称"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="6" :offset="2">
@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       searchForm: {
-        StockoutName: '',
+        StockOutName: '',
         dateRange: [] // 初始化为空数组
       }
     }
@@ -44,7 +44,7 @@ export default {
     },
     handleAdd() {
       // 新增出库逻辑
-      this.$emit('addStockout');
+      this.$emit('addStockOut');
     }
   }
 }

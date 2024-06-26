@@ -176,6 +176,7 @@ export default {
       }
       else if (this.dialogTitle === '编辑字典') {
         const dictDto = {
+          DictId: dictData.DictId,
           DictType: dictData.DictType,
           DictName: dictData.DictName,
           Remark: dictData.Remark,

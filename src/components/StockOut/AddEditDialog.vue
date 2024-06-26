@@ -5,8 +5,8 @@
         <el-input v-if="field.type === 'input'" v-model="dialogStockOut[field.prop]"></el-input>
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
           v-model="dialogStockOut[field.prop]">
-        </el-input><el-select v-if="field.type === 'select' && field.label === '出库单'"
-          v-model="dialogStockOut[field.prop]" placeholder="请选择出库单">
+        </el-input><el-select v-if="field.type === 'select' && field.label === '出库单类型'"
+          v-model="dialogStockOut[field.prop]" placeholder="请选择出库单类型">
           <el-option v-for="(key, value) in stockOutTypeList" :key="value" :label="key" :value="value"></el-option>
 
         </el-select>
@@ -71,7 +71,7 @@ export default {
       dialogCustomerList: this.customerList,
       formFields: [
         {
-          prop: 'StockOutId',
+          prop: 'StockOutNo',
           label: '出库单号',
           type: 'input',
         },
@@ -81,8 +81,8 @@ export default {
           type: 'input',
         },
         {
-          prop: 'StockOutType',
-          label: '出库单',
+          prop: 'StockOutTypeId',
+          label: '出库单类型',
           type: 'select',
         },
         {

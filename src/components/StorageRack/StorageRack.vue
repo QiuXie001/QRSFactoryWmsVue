@@ -85,11 +85,11 @@ export default {
       UserFormData.append("token", this.$store.state.token);
       UserFormData.append("userId", this.$store.state.user.UserId);
 
-      this.$axios.post(this.$httpUrl + '/StorageRack/GetStorageRackList', UserFormData)
+      this.$axios.post(this.$httpUrl + '/StorageRack/List', UserFormData)
         .then(response => {
           const data = response.data;
           if (data) {
-            this.StorageRackList = data.rows; // 假设data.rows是你的货架列表
+            this.storageRackList = data.rows; // 假设data.rows是你的货架列表
             this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
@@ -190,15 +190,17 @@ export default {
     confirmAddEditStorageRack(StorageRackData) {
       if (this.dialogTitle === '新增货架') {
         const StorageRackDto = {
-          StorageRackType: StorageRackData.StorageRackType,
+          StorageRackNo: StorageRackData.StorageRackNo,
           StorageRackName: StorageRackData.StorageRackName,
+          WarehouseId: StorageRackData.WarehouseId,
+          ReservoirAreaId: StorageRackData.ReservoirAreaId,
           Remark: StorageRackData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("StorageRack", JSON.stringify(StorageRackDto));
-        this.$axios.post(this.$httpUrl + '/StorageRack/InsertStorageRack', UserFormData)
+        UserFormData.append("model", JSON.stringify(StorageRackDto));
+        this.$axios.post(this.$httpUrl + '/StorageRack/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {
@@ -223,15 +225,19 @@ export default {
       else if (this.dialogTitle === '编辑货架') {
         const StorageRackDto = {
           StorageRackId: StorageRackData.StorageRackId,
-          StorageRackType: StorageRackData.StorageRackType,
+          StorageRackNo: StorageRackData.StorageRackNo,
           StorageRackName: StorageRackData.StorageRackName,
-          Remark: StorageRackData.Remark
+          WarehouseId: StorageRackData.WarehouseId,
+          ReservoirAreaId: StorageRackData.ReservoirAreaId,
+          Remark: StorageRackData.Remark,
         };
         const UserFormData = new FormData();
         UserFormData.append("token", this.$store.state.token);
         UserFormData.append("userId", this.$store.state.user.UserId);
-        UserFormData.append("StorageRack", JSON.stringify(StorageRackDto));
-        this.$axios.post(this.$httpUrl + '/StorageRack/UpdateStorageRack', UserFormData)
+        UserFormData.append("model", JSON.stringify(StorageRackDto));
+        UserFormData.append("Id", StorageRackData.StorageRackId);
+
+        this.$axios.post(this.$httpUrl + '/StorageRack/AddOrUpdate', UserFormData)
           .then(response => {
             const data = response.data;
             if (data.Item1) {

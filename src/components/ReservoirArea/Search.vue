@@ -43,7 +43,7 @@ export default {
       this.$emit('search', this.searchForm);
     },
     handleAdd() {
-      // 新增角色逻辑
+      // 新增库区逻辑
       this.$emit('addReservoirArea');
     }
   }

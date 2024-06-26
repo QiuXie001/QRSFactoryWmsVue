@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4589389 */
-  src: url('iconfont.woff2?t=1719043592997') format('woff2'),
-       url('iconfont.woff?t=1719043592997') format('woff'),
-       url('iconfont.ttf?t=1719043592997') format('truetype');
+  src: url('iconfont.woff2?t=1719365482656') format('woff2'),
+       url('iconfont.woff?t=1719365482656') format('woff'),
+       url('iconfont.ttf?t=1719365482656') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-chuku:before {
+  content: "\e67d";
+}
+
+.icon-ruku:before {
+  content: "\e680";
 }
 
 .icon-caidanguanli:before {

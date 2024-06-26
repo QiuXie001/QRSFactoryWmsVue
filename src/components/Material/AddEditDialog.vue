@@ -8,23 +8,23 @@
         </el-input>
         <el-select v-if="field.type === 'select' && field.label === '物料类型'" v-model="dialogMaterial[field.prop]"
           placeholder="请选择物料类型">
-          <el-option v-for="(key, value) in materialTypeList" :key="value" :label="key" :value="value"></el-option>
+          <el-option v-for="(key, value) in dialogMaterialTypeList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
         <el-select v-if="field.type === 'select' && field.label === '单位'" v-model="dialogMaterial[field.prop]"
           placeholder="请选择单位">
-          <el-option v-for="(key, value) in unitList" :key="value" :label="key" :value="value"></el-option>
+          <el-option v-for="(key, value) in dialogUnitList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
         <el-select v-if="field.type === 'select' && field.label === '所属仓库'" v-model="dialogMaterial[field.prop]"
-          placeholder="请选择仓库">
-          <el-option v-for="(key, value) in warehouseList" :key="value" :label="key" :value="value"></el-option>
+          placeholder="请选择仓库" @change="handleSelectChange('reservoirArea')">
+          <el-option v-for="(key, value) in dialogWarehouseList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
         <el-select v-if="field.type === 'select' && field.label === '所属库区'" v-model="dialogMaterial[field.prop]"
-          placeholder="请选择库区">
-          <el-option v-for="(key, value) in reservoirAreaList" :key="value" :label="key" :value="value"></el-option>
+          placeholder="请选择库区"  @change="handleSelectChange('storagerack')">
+          <el-option v-for="(key, value) in dialogReservoirAreaList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
         <el-select v-if="field.type === 'select' && field.label === '所属货架'" v-model="dialogMaterial[field.prop]"
           placeholder="请选择货架">
-          <el-option v-for="(key, value) in storagerackList" :key="value" :label="key" :value="value"></el-option>
+          <el-option v-for="(key, value) in dialogStoragerackList" :key="value" :label="key" :value="value"></el-option>
 
         </el-select>
       </el-form-item>
@@ -181,11 +181,61 @@ export default {
     this.dialogWarehouseList = this.warehouseList;
     this.dialogReservoirAreaList = this.reservoirAreaList;
     this.dialogStoragerackList = this.storagerackList;
-
   },
   mounted() {
   },
   methods: {
+    handleSelectChange(selectedSelect) {
+      const SelectFormData = new FormData();
+      SelectFormData.append("token", this.$store.state.token);
+      SelectFormData.append("userId", this.$store.state.user.UserId);
+      if (selectedSelect === "reservoirArea") {
+        SelectFormData.append("Id", this.dialogMaterial.WarehouseId);
+        this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirarea', SelectFormData)
+          .then(response => {
+            const data = response.data;
+            if (data) {
+              this.dialogReservoirAreaList = data; // 假设data.rows是你的物料列表
+
+              // 其他需要更新的数据...
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
+      }
+      if (selectedSelect === "storagerack") {
+        SelectFormData.append("Id", this.dialogMaterial.ReservoirAreaId);
+        this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirarea', SelectFormData)
+          .then(response => {
+            const data = response.data;
+            if (data) {
+              this.dialogStoragerackList = data; // 假设data.rows是你的物料列表
+
+              // 其他需要更新的数据...
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
+      }
+    },
     confirmAction() {
       // 确认添加或编辑物料的逻辑
       this.$refs.MaterialForm.validate(valid => {

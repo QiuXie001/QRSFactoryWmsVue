@@ -3,15 +3,15 @@
     <el-form :model="dialogStorageRack" :rules="rules" ref="StorageRackForm">
       <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label" :prop="field.prop">
         <el-input v-if="field.type === 'input'" v-model="dialogStorageRack[field.prop]"></el-input>
-        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="storageRack[field.prop]">
+        <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows" v-model="dialogStorageRack[field.prop]">
         </el-input>
         <el-select v-if="field.type === 'select' && field.label === '所属仓库'" v-model="dialogStorageRack[field.prop]"
-          placeholder="请选择仓库">
-          <el-option v-for="(key, value) in warehouseList" :key="value" :label="key" :value="value"></el-option>
+          placeholder="请选择仓库" @change="handleSelectChange('reservoirArea')"> 
+          <el-option v-for="(key, value) in dialogWarehouseList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
         <el-select v-if="field.type === 'select' && field.label === '所属库区'" v-model="dialogStorageRack[field.prop]"
           placeholder="请选择库区">
-          <el-option v-for="(key, value) in reservoirAreaList" :key="value" :label="key" :value="value"></el-option>
+          <el-option v-for="(key, value) in dialogReservoirAreaList" :key="value" :label="key" :value="value"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -123,7 +123,34 @@ export default {
   mounted() {
   },
   methods: {
+    handleSelectChange(selectedSelect) {
+      const SelectFormData = new FormData();
+      SelectFormData.append("token", this.$store.state.token);
+      SelectFormData.append("userId", this.$store.state.user.UserId);
+      if (selectedSelect === "reservoirArea") {
+        SelectFormData.append("Id", this.dialogStorageRack.WarehouseId);
+        this.$axios.post(this.$httpUrl + '/StorageRack/GetReservoirarea', SelectFormData)
+          .then(response => {
+            const data = response.data;
+            if (data) {
+              this.dialogReservoirAreaList = data; // 假设data.rows是你的物料列表
 
+              // 其他需要更新的数据...
+            } else {
+              this.$message({
+                type: 'error',
+                message: data.Item2
+              });
+            }
+          })
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: error
+            });
+          });
+      }
+    },
     confirmAction() {
       // 确认添加或编辑货架的逻辑
       this.$refs.StorageRackForm.validate(valid => {

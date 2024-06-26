@@ -1,7 +1,7 @@
 <template>
   <div>
     <Search @search="handleSearch" @addMaterial="showAddMaterialDialog" />
-    <MaterialList :rows="MaterialList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
+    <List :rows="MaterialList" :currentPage="currentPage" :pageSize="pageSize" :total="total"
       @editMaterial="showEditMaterialDialog" @deleteMaterial="handleDeleteMaterial" @pageChange="handlePageChange" />
     <AddEditDialog :visible.sync="addEditDialogVisible" :title="dialogTitle" :Material="selectedMaterial"
       :formFields="formFields" :materialTypeList="materialTypeList" :unitList="unitList" :warehouseList="warehouseList"
@@ -12,14 +12,14 @@
 
 <script>
 import Search from './Search';
-import MaterialList from './List';
+import List from './List';
 import AddEditDialog from './AddEditDialog';
 
 export default {
   name: 'Material',
   components: {
     Search,
-    MaterialList,
+    List,
     AddEditDialog
   },
 
@@ -109,6 +109,7 @@ export default {
           const data = response.data;
           if (data) {
             this.MaterialList = data.rows; // 假设data.rows是你的物料列表
+            this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -181,8 +182,8 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.warehouseList = data; // 假设data.rows是你的物料列表
-
+            this.warehouseList = data;
+            this.total = data.total; // 更新总记录数
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -205,7 +206,7 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.reservoirAreaList = data; // 假设data.rows是你的物料列表
+            this.reservoirAreaList = data; 
             // 其他需要更新的数据...
           } else {
             this.$message({
@@ -228,7 +229,7 @@ export default {
         .then(response => {
           const data = response.data;
           if (data) {
-            this.storagerackList = data; // 假设data.rows是你的物料列表
+            this.storagerackList = data; 
             // 其他需要更新的数据...
           } else {
             this.$message({

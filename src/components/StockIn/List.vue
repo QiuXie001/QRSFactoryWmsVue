@@ -1,19 +1,20 @@
 <template>
     <div>
         <el-table :data="this.rows" border style="width: 100%">
-            <el-table-column prop="Tool" label="操作">
+            <el-table-column prop="Tool" label="操作" width="220">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button size="mini" @click="handleDetail(scope.$index, scope.row)">明细</el-button>
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="StockinNo" label="入库单号"></el-table-column>
+            <el-table-column prop="StockInNo" label="入库单号"></el-table-column>
           <el-table-column prop="OrderNo" label="订单号"></el-table-column>
-          <el-table-column prop="StockInType" label="入库类型"></el-table-column>
+          <el-table-column prop="StockInTypeName" label="入库类型"></el-table-column>
           <el-table-column prop="SupplierId" label="供应商编号"></el-table-column>
           <el-table-column prop="SupplierName" label= "供应商名称"></el-table-column>
           <el-table-column prop="StockInStatus" label="状态"></el-table-column>
-          <el-table-column prop="remark" label="备注"></el-table-column>
+          <el-table-column prop="Remark" label="备注"></el-table-column>
           <el-table-column prop="CreateDate" label="创建日期" :formatter="formatDate"></el-table-column>
           <el-table-column prop="ModifiedDate" label="修改日期" :formatter="formatDate"></el-table-column>
 
@@ -56,11 +57,14 @@ export default {
         },
         handleEdit(index, row) {
             // 触发编辑入库事件，传递当前行数据
-            this.$emit('editStockin', row);
+            this.$emit('editStockIn', row);
+        },
+        handleDetail(index, row) {
+            this.$emit('detailStockIn', row);
         },
         handleDelete(index, row) {
             // 触发删除入库事件，传递当前行数据
-            this.$emit('deleteStockin', row);
+            this.$emit('deleteStockIn', row);
         },
         handlePageChange(newPage) {
             // 触发分页变化事件，传递新的页码

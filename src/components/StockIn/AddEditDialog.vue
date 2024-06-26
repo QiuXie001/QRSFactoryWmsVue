@@ -6,8 +6,8 @@
         <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
           v-model="dialogStockIn[field.prop]">
         </el-input>
-        <el-select v-if="field.type === 'select' && field.label === '入库单'" v-model="dialogStockIn[field.prop]"
-          placeholder="请选择入库单">
+        <el-select v-if="field.type === 'select' && field.label === '入库单类型'" v-model="dialogStockIn[field.prop]"
+          placeholder="请选择入库单类型">
           <el-option v-for="(key, value) in stockInTypeList" :key="value" :label="key" :value="value"></el-option>
 
         </el-select>
@@ -25,6 +25,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'AddEditDialog',
   props: {
@@ -80,7 +81,12 @@ export default {
         },
         {
           prop: 'StockInNo',
-          label: '入库单',
+          label: '入库单号',
+          type: 'input',
+        },
+        {
+          prop: 'StockInTypeId',
+          label: '入库单类型',
           type: 'select',
         },
         {
@@ -143,7 +149,6 @@ export default {
     cancelDialog() {
       // 重置表单的逻辑
       this.dialogStockIn = {};
-
       this.$emit('update:visible', false);
     }
   }

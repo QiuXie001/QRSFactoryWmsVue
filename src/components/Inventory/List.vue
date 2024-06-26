@@ -1,12 +1,6 @@
 <template>
     <div>
         <el-table :data="this.rows" border style="width: 100%">
-            <el-table-column prop="Tool" label="操作">
-                <template slot-scope="scope">
-                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
             <el-table-column prop="InventoryId" label="入库单号"></el-table-column>
             <el-table-column prop="MaterialId" label="物料编号"></el-table-column>
             <el-table-column prop="MaterialName" label="物料名称"></el-table-column>

@@ -5,17 +5,22 @@
         <el-col :span="4">{{ field.label }}</el-col>
         <el-col :span="16" :offset="2">
           <el-form-item :prop="field.prop">
-            <el-input v-if="field.type === 'input'" v-model="dialogUser[field.prop]" >
+            <el-input v-if="field.type === 'input'" v-model="dialogUser[field.prop]">
             </el-input>
-            <el-select v-if="field.type === 'select'&&field.label==='角色'" v-model="dialogUser[field.prop]" placeholder="请选择">
-              <el-option v-for=" (key,value) in roleList" :key="value" :label="key"
-              :value="value"></el-option>
-             
+            <el-radio-group v-if="field.type === 'radio'" v-model="dialogUser[field.prop]">
+              <el-radio label="0">男</el-radio>
+              <el-radio label="1">女</el-radio>
+            </el-radio-group>
+
+            <el-select v-if="field.type === 'select' && field.label === '角色'" v-model="dialogUser[field.prop]"
+              placeholder="请选择">
+              <el-option v-for=" (key, value) in roleList" :key="value" :label="key" :value="value"></el-option>
+
             </el-select>
-            <el-select v-if="field.type === 'select'&&field.label==='部门'" v-model="dialogUser[field.prop]" placeholder="请选择">
-              <el-option v-for="(key,value) in deptList" :key="value" :label="key"
-              :value="value"></el-option>
-             
+            <el-select v-if="field.type === 'select' && field.label === '部门'" v-model="dialogUser[field.prop]"
+              placeholder="请选择">
+              <el-option v-for="(key, value) in deptList" :key="value" :label="key" :value="value"></el-option>
+
             </el-select>
             <el-input v-if="field.type === 'textarea'" type="textarea" :rows="field.rows"
               v-model="dialogUser[field.prop]"></el-input>
@@ -51,7 +56,7 @@ export default {
       type: Object,
       default: () => ({})
     },
-    deptList:{
+    deptList: {
       type: Object,
       default: () => ({})
     }
@@ -88,7 +93,7 @@ export default {
           prop: 'UserNickname',
           label: '昵称',
           type: 'input',
-        },{
+        }, {
           prop: 'Pwd',
           label: '初始密码',
           type: 'input',
@@ -101,18 +106,18 @@ export default {
         {
           prop: 'Sex',
           label: '性别',
-          type: '',
+          type: 'radio',
         },
         {
           prop: 'DeptId',
           label: '部门',
-          type: 'select', 
+          type: 'select',
         },
         {
           prop: 'RoleId',
           label: '角色',
-          type: 'select', 
-        },{
+          type: 'select',
+        }, {
           prop: 'Remark',
           label: '备注',
           type: 'textarea', // 假设这是一个文本域
@@ -153,7 +158,7 @@ export default {
       // 确认添加或编辑角色的逻辑
       this.$refs.userForm.validate(valid => {
         if (valid) {
-          
+
 
           this.$emit('confirmAction', this.dialogUser);
 
